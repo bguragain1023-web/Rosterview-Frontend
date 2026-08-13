@@ -1,0 +1,43 @@
+:root {
+  --color-primary: #b6ff2ee3;
+  --color-secondary: #23262f;
+  --color-teritory: #f8c769;      
+    --bs-primary: #b6ff2e; 
+      --bs-primary-rgb: 182, 255, 46;
+  --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-border: #30363d;
+}
+
+
+.title{
+    font-size: 3rem;
+    font-weight: bolder;
+}
+/* login page */
+
+
+.loginpage-wrapper{
+    height:85vh;
+    background: var(--color-primary);
+    
+}
+
+.loginbox{
+    background: var(--color-secondary);
+    padding:40px;
+    color:var(--color-primary);
+    width: 30%;
+    font-size:2rem;
+    border: 2px solid white;
+    border-radius: 10px 50px 10px 50px;
+}
+
+.btn-primary {
+  --bs-btn-bg: var(--color-primary);
+  --bs-btn-border-color: var(--color-primary);
+  --bs-btn-color: #000;
+   --bs-btn-hover-bg: #a3e628;   /* slightly darker green for hover */
+  --bs-btn-hover-border-color: #a3e628;
+      --bs-btn-hover-color: black;
+}
