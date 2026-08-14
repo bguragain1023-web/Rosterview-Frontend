@@ -1,9 +1,9 @@
 :root {
   --color-primary: #b6ff2ee3;
   --color-secondary: #23262f;
-  --color-teritory: #f8c769;      
+  --color-teritory: #f8c669cf;      
     --bs-primary: #b6ff2e; 
-      --bs-primary-rgb: 182, 255, 46;
+ --bs-primary-rgb: 182, 255, 46;
   --color-text: #e6edf3;
   --color-text-muted: #8b949e;
   --color-border: #30363d;
@@ -19,18 +19,23 @@
 
 .layoutWrapper{
     background: var(--color-primary);
-     min-height:85vh;
+     min-height:87vh;
+}
+
+.footer{
+    background: var(--color-secondary);
+    color:white
 }
 
 
 /* navBar */
 .customNavbar{
     background: var(--color-secondary);
-    color:white !important;
+   
 }
 
 .navbar{
-     --bs-navbar-brand-color:var(--color-teritory);
+     --bs-navbar-brand-color:var(--color-text);
 }
 
 /* login page */

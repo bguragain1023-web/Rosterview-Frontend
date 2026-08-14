@@ -4,7 +4,7 @@ import Row from "react-bootstrap/Row";
 
 export const Footer = () => {
   return (
-    <Container fluid className=" bg-body-tertiary p-3">
+    <Container fluid className=" footer p-3">
       <Row className="text-center ">
         <Col className="footer">
           {" "}

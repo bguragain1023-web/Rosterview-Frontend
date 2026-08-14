@@ -1,41 +1,66 @@
-import './App.css'
-import { Login } from './pages/Login'
+import "./App.css";
+import { Login } from "./pages/Login";
 import { Routes, Route } from "react-router";
 import { ToastContainer } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css"; 
-import { Layout } from './components/layout/Layout';
-import { Staff } from './pages/Staff';
-import { Coordinator } from './pages/Coordinator';
-import { PrivateRoutes } from './components/Private/PrivateRoutes';
+import "react-toastify/dist/ReactToastify.css";
+import { Layout } from "./components/layout/Layout";
+import { Staff } from "./pages/Staff";
+import { Coordinator } from "./pages/Coordinator";
+import { PrivateRoutes } from "./components/Private/PrivateRoutes";
+import { autoLogin } from "./utils/users";
+import { useUser } from "./contex/UserContext";
+import { useEffect, useState } from "react";
+import Spinner from "react-bootstrap/Spinner";
 function App() {
+  const { user, setUser } = useUser();
+  const [loading, setLoading] = useState(true);
+  console.log("current context user:", user);
 
+  const updatedUser = async () => {
+    const users = await autoLogin();
+    console.log("about to setUser with:", users);
+    if (users) {
+      setUser(users);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
+    if (!user?._id) {
+      updatedUser();
+    }
+  }, [user?._id]);
+
+  console.log("RENDER — loading:", loading, "user:", user);
+
+  if (loading) {
+    return (
+      <div>
+        {" "}
+        <Spinner animation="border" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </Spinner>
+      </div>
+    );
+  }
 
   return (
-<>
-<div className="">
-<Routes>
+    <>
+      <div className="">
+        <Routes>
+          <Route path="/" element={<Layout />}>
+            <Route index element={<Login />} />
 
-  <Route path="/" element={<Layout />}>
-  <Route index element={<Login />} />
-
-  <Route element ={<PrivateRoutes/>}>
-   <Route path = "Staff" element={<Staff/>} />
-  <Route path = "admin" element={<Coordinator/>} />
-  
-  </Route>
- 
-  
-  
-  </Route>
-</Routes>
-<ToastContainer/>
-
-</div>
-
-
-
-</>
-  )
+            <Route element={<PrivateRoutes />}>
+              <Route path="staff" element={<Staff />} />
+              <Route path="admin" element={<Coordinator />} />
+            </Route>
+          </Route>
+        </Routes>
+        <ToastContainer />
+      </div>
+    </>
+  );
 }
 
-export default App
+export default App;
