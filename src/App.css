@@ -14,14 +14,29 @@
     font-size: 3rem;
     font-weight: bolder;
 }
+
+/* layout */
+
+.layoutWrapper{
+    background: var(--color-primary);
+     min-height:85vh;
+}
+
+
+/* navBar */
+.customNavbar{
+    background: var(--color-secondary);
+    color:white !important;
+}
+
+.navbar{
+     --bs-navbar-brand-color:var(--color-teritory);
+}
+
 /* login page */
 
 
-.loginpage-wrapper{
-    height:85vh;
-    background: var(--color-primary);
-    
-}
+
 
 .loginbox{
     background: var(--color-secondary);

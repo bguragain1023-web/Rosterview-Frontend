@@ -26,3 +26,11 @@ export interface LoginResponse {
     email: string,
     password: string
  }
+
+ export interface IUser {
+    name:string
+    id: string 
+    email:string
+     role:"coordinator" | "worker"
+
+ }

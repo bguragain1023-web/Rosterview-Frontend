@@ -4,13 +4,13 @@ import Navbar from 'react-bootstrap/Navbar';
 export const Header = () => {
   return (
     <>
-    <Container>
-      <Navbar expand="lg" className="bg-body-tertiary">
-        <Container>
-          <Navbar.Brand href="#">Roaster View</Navbar.Brand>
+    
+      <Navbar expand="lg" className="customNavbar">
+        <Container className="text-danger">
+          <Navbar.Brand href="#" >Roaster View</Navbar.Brand>
         </Container>
       </Navbar>
-    </Container>
+   
     </>
   );
 };
