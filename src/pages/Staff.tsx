@@ -1,9 +1,7 @@
-
-
 export const Staff = () => {
   return (
     <div className="layoutWrapper">
-        Coming soon
+      <h1>Staff Dashboard coming soon </h1>
     </div>
-  )
-}
+  );
+};

@@ -1,63 +1,111 @@
 :root {
   --color-primary: #b6ff2ee3;
   --color-secondary: #23262f;
-  --color-teritory: #f8c669cf;      
-    --bs-primary: #b6ff2e; 
- --bs-primary-rgb: 182, 255, 46;
+  --color-teritory: #f8c669cf;
+  --bs-primary: #b6ff2e;
+  --bs-primary-rgb: 182, 255, 46;
   --color-text: #e6edf3;
   --color-text-muted: #8b949e;
   --color-border: #30363d;
 }
 
-
-.title{
-    font-size: 3rem;
-    font-weight: bolder;
+.title {
+  font-size: 3rem;
+  font-weight: bolder;
 }
 
 /* layout */
 
-.layoutWrapper{
-    background: var(--color-primary);
-     min-height:87vh;
+.layoutWrapper {
+  background: var(--color-primary);
+  min-height: 87vh;
 }
 
-.footer{
-    background: var(--color-secondary);
-    color:white
+.footer {
+  background: var(--color-secondary);
+  color: white;
 }
-
 
 /* navBar */
-.customNavbar{
-    background: var(--color-secondary);
-   
+.customNavbar {
+  background: var(--color-secondary);
 }
 
-.navbar{
-     --bs-navbar-brand-color:var(--color-text);
+.navbar {
+  --bs-navbar-brand-color: var(--color-text);
 }
 
 /* login page */
 
-
-
-
-.loginbox{
-    background: var(--color-secondary);
-    padding:40px;
-    color:var(--color-primary);
-    width: 30%;
-    font-size:2rem;
-    border: 2px solid white;
-    border-radius: 10px 50px 10px 50px;
+.loginbox {
+  background: var(--color-secondary);
+  padding: 40px;
+  color: var(--color-primary);
+  width: 30%;
+  font-size: 2rem;
+  border: 2px solid white;
+  border-radius: 10px 50px 10px 50px;
 }
 
 .btn-primary {
   --bs-btn-bg: var(--color-primary);
   --bs-btn-border-color: var(--color-primary);
   --bs-btn-color: #000;
-   --bs-btn-hover-bg: #a3e628;   /* slightly darker green for hover */
+  --bs-btn-hover-bg: #a3e628; /* slightly darker green for hover */
   --bs-btn-hover-border-color: #a3e628;
-      --bs-btn-hover-color: black;
+  --bs-btn-hover-color: black;
+}
+
+/* coordinator */
+
+.left-coord {
+  min-height: 50vh;
+  flex: 3;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.react-calendar {
+  flex: 1;
+  width: 100% !important;
+  max-width: 100% !important;
+  background-color: rgba(255, 255, 255, 0.261) !important;
+  border: none;
+  border-radius: 12px;
+  padding: 1rem;
+  color: rgb(120, 115, 115) !important;
+}
+
+.right-coord {
+  flex: 1;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.react-calendar__tile {
+  border: 1px solid #2c303a08 !important;
+}
+
+.operation {
+  margin-top: auto;
+  padding: 10px;
+  background: var(--color-secondary);
+  color: white;
+  width: 60%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+  border-radius: 10px;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
+  cursor: pointer;
+}
+.operation:hover {
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
 }

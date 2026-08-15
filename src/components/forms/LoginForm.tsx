@@ -21,7 +21,6 @@ export const LoginForm = () => {
   };
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-    console.log("submit fired");
     e.preventDefault();
     const pendingState = loginUser(form);
     toast.promise(pendingState, {
@@ -51,6 +50,7 @@ export const LoginForm = () => {
             placeholder="Enter email"
             name="email"
             onChange={handleOnChange}
+            required
           />
         </Form.Group>
 
@@ -61,6 +61,7 @@ export const LoginForm = () => {
             placeholder="Password"
             name="password"
             onChange={handleOnChange}
+            required
           />
         </Form.Group>
 

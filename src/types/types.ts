@@ -38,3 +38,9 @@ export interface GetUserResponse {
   message: string;
   user?: IUser;
 }
+
+export interface SidebarAction {
+  id: string;
+  label: string;
+  onClick: () => void;
+}

@@ -14,11 +14,10 @@ import Spinner from "react-bootstrap/Spinner";
 function App() {
   const { user, setUser } = useUser();
   const [loading, setLoading] = useState(true);
-  console.log("current context user:", user);
 
   const updatedUser = async () => {
     const users = await autoLogin();
-    console.log("about to setUser with:", users);
+
     if (users) {
       setUser(users);
     }
@@ -30,8 +29,6 @@ function App() {
       updatedUser();
     }
   }, [user?._id]);
-
-  console.log("RENDER — loading:", loading, "user:", user);
 
   if (loading) {
     return (
