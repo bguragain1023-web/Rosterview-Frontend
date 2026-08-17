@@ -1,14 +1,15 @@
-import { useState } from "react";
 import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 import type { Value } from "react-calendar/dist/shared/types.js";
 
-export const CoordinatorCalender = () => {
-  const [selectDate, setSelectDate] = useState<Value>(new Date());
+interface CoordinatorCalenderProps {
+  selectedDate: Value;
+  onDateChange: (value: Value) => void;
+}
 
-  const handleOnDateClick = (value: Value) => {
-    setSelectDate(value);
-    console.log("clicked Date ", value);
-  };
-  return <Calendar value={selectDate} onChange={handleOnDateClick} />;
+export const CoordinatorCalender = ({
+  selectedDate,
+  onDateChange,
+}: CoordinatorCalenderProps) => {
+  return <Calendar value={selectedDate} onChange={onDateChange} />;
 };

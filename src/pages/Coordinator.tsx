@@ -1,18 +1,33 @@
+import { useState } from "react";
 import { CoordinatorCalender } from "../components/CoordinatorCalender";
 import { OperationButton } from "../components/custom/Button";
+import type { Value } from "react-calendar/dist/shared/types.js";
+import { AppModal } from "../components/custom/AppModal";
+
+type DetailView = "schedule" | "swapRequest" | "conflicts";
+
+type ModalType = "addStaff" | "updateRole" | "createShift" | null;
+
+interface SidebarAction {
+  id: string;
+  label: string;
+  onClick: () => void;
+}
 
 export const Coordinator = () => {
-  interface SidebarAction {
-    id: string;
-    label: string;
-    onClick: () => void;
-  }
+  const [selectedDate, setSelectedDate] = useState<Value>(new Date());
+  const [activeView, setActiveView] = useState<DetailView>("schedule");
+  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
+  const handleDateChange = (value: Value) => {
+    setSelectedDate(value);
+    setActiveView("schedule");
+  };
   const sidebarActions: SidebarAction[] = [
     {
       id: "add-staff",
       label: "Add New Staff",
-      onClick: () => console.log("Add staff clicked"),
+      onClick: () => setActiveModal("addStaff"),
     },
     {
       id: "update-role",
@@ -47,12 +62,15 @@ export const Coordinator = () => {
   ];
 
   return (
-    <div className="layoutWrapper">
+    <div className="layoutWrapper container">
       <div className="title text-center">Welcome to your Dahboard</div>
 
       <div className="main d-flex m-3 gap-2">
         <div className="left-coord">
-          <CoordinatorCalender />
+          <CoordinatorCalender
+            selectedDate={selectedDate}
+            onDateChange={handleDateChange}
+          />
         </div>
 
         <div className="right-coord">
@@ -65,6 +83,25 @@ export const Coordinator = () => {
           ))}
         </div>
       </div>
+      <br />
+      <div className="responseBox container">
+        {activeView === "schedule" && (
+          <div>All the schedule for the day here</div>
+        )}
+        {activeView === "swapRequest" && (
+          <div>All the schedule for the day here</div>
+        )}
+        {activeView === "conflicts" && (
+          <div>All the schedule for the day here</div>
+        )}
+      </div>
+
+      <br />
+      <AppModal
+        show={activeModal === "addStaff"}
+        onClose={() => setActiveModal(null)}
+        title="Add New Staff"
+      ></AppModal>
     </div>
   );
 };

@@ -8,6 +8,9 @@
   --color-text-muted: #8b949e;
   --color-border: #30363d;
 }
+body {
+  background: var(--color-border);
+}
 
 .title {
   font-size: 3rem;
@@ -108,4 +111,10 @@
 .operation:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   transform: translateY(-2px);
+}
+
+.responseBox {
+  width: 100%;
+  min-height: 300px;
+  border: 2px black solid;
 }
