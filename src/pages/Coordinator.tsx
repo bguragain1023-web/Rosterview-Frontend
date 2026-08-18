@@ -3,6 +3,7 @@ import { CoordinatorCalender } from "../components/CoordinatorCalender";
 import { OperationButton } from "../components/custom/Button";
 import type { Value } from "react-calendar/dist/shared/types.js";
 import { AppModal } from "../components/custom/AppModal";
+import { AddStaffForm } from "../components/forms/AddStaffForm";
 
 type DetailView = "schedule" | "swapRequest" | "conflicts";
 
@@ -101,7 +102,9 @@ export const Coordinator = () => {
         show={activeModal === "addStaff"}
         onClose={() => setActiveModal(null)}
         title="Add New Staff"
-      ></AppModal>
+      >
+        <AddStaffForm />
+      </AppModal>
     </div>
   );
 };
