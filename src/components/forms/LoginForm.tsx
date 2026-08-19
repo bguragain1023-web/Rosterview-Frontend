@@ -1,4 +1,4 @@
-import { useState, type SubmitEvent } from "react";
+import { type SubmitEvent } from "react";
 import Button from "react-bootstrap/Button";
 import Form from "react-bootstrap/Form";
 import { loginUser } from "../../helper/axios";
@@ -6,19 +6,16 @@ import { toast } from "react-toastify";
 import type { LoginPayload } from "../../types/types";
 import { useUser } from "../../contex/UserContext";
 import { useNavigate } from "react-router-dom";
+import useForm from "../../hooks/useForm";
 
 export const LoginForm = () => {
-  const [form, setForm] = useState<LoginPayload>({ email: "", password: "" });
+  const { form, handleOnChange } = useForm<LoginPayload>({
+    email: "",
+    password: "",
+  });
+
   const { setUser } = useUser();
   const navigate = useNavigate();
-
-  const handleOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm({
-      ...form,
-      [name]: value,
-    });
-  };
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();

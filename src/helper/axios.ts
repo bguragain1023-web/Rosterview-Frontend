@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import type {
+  AddStaffPayload,
   GetUserResponse,
   LoginPayload,
   LoginResponse,
@@ -42,6 +43,7 @@ const apiProcessor = async ({
   }
 };
 
+//login user
 export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
   const obj = {
     method: "post",
@@ -51,10 +53,27 @@ export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
   return apiProcessor(obj);
 };
 
-export const getUser = (): Promise<GetUserResponse> => {
+// fetch user
+
+export const getUser = async (): Promise<GetUserResponse> => {
   const users = {
     method: "get",
     url: baseURL + "/users",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(users);
+};
+
+//add new staff
+export const addNewStaff = (
+  data: AddStaffPayload,
+): Promise<GetUserResponse> => {
+  const users = {
+    method: "post",
+    url: baseURL + "/coordinator",
+    data,
     headers: {
       Authorization: `Bearer ${getAccessJWT()}`,
     },

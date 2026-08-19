@@ -4,10 +4,9 @@ import { OperationButton } from "../components/custom/Button";
 import type { Value } from "react-calendar/dist/shared/types.js";
 import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
+import { useUser } from "../contex/UserContext";
 
 type DetailView = "schedule" | "swapRequest" | "conflicts";
-
-type ModalType = "addStaff" | "updateRole" | "createShift" | null;
 
 interface SidebarAction {
   id: string;
@@ -16,9 +15,9 @@ interface SidebarAction {
 }
 
 export const Coordinator = () => {
+  const { activeModal, setActiveModal } = useUser();
   const [selectedDate, setSelectedDate] = useState<Value>(new Date());
   const [activeView, setActiveView] = useState<DetailView>("schedule");
-  const [activeModal, setActiveModal] = useState<ModalType>(null);
 
   const handleDateChange = (value: Value) => {
     setSelectedDate(value);

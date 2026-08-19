@@ -44,3 +44,10 @@ export interface SidebarAction {
   label: string;
   onClick: () => void;
 }
+
+export interface AddStaffPayload {
+  name: string;
+  email: string;
+  password: string;
+  role: string;
+}
