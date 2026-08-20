@@ -1,48 +1,62 @@
-import { Button } from "react-bootstrap";
-import Form from "react-bootstrap/Form";
+import { Button, Form } from "react-bootstrap";
 import useForm from "../../hooks/useForm";
-import type { SubmitEvent } from "react";
-import type { AddStaffPayload } from "../../types/types";
-import { addNewStaff, fetchAllUsers } from "../../helper/axios";
-import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
+import type { UpdateStaffPayload } from "../../types/types";
+import { useEffect } from "react";
+import { updateStaff } from "../../helper/axios";
+import { toast } from "react-toastify";
 
-export const AddStaffForm = () => {
-  const initialState = {
-    name: "",
-    role: "",
-    email: "",
-    phone: "",
-    password: "",
-  };
+const initialStateState: UpdateStaffPayload = {
+  name: "",
+  email: "",
+  role: "",
+  phone: "",
+};
 
-  const { setActiveModal, setAllUsers } = useUser();
+export const UpdateStaffForm = () => {
+  const { editUser, setActiveModal } = useUser();
+  const { form, setForm, handleOnChange } = useForm<UpdateStaffPayload>(
+    editUser ? { ...editUser } : initialStateState,
+  );
 
-  const { form, setForm, handleOnChange } =
-    useForm<AddStaffPayload>(initialState);
+  useEffect(() => {
+    console.log("editUser changed:", editUser);
+    if (editUser) {
+      setForm({ ...editUser });
+    }
+  }, [editUser]);
 
-  const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+  console.log("current form state:", form);
+  const handleOnSubmit = async (e: React.SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Add form submitted", form);
-    const pendingState = addNewStaff(form);
-    toast.promise(pendingState, {
-      pending: "Adding New staff",
+    if (!editUser) return;
+
+    if (form.role !== "coordinator" && form.role !== "worker") {
+      toast.error("Please select a role");
+      return;
+    }
+
+    const result = await updateStaff(editUser._id, {
+      ...form,
+      role: form.role,
     });
 
-    const { status, message } = await pendingState;
-    toast[status](message);
-    if (status === "success") {
-      setForm(initialState);
+    toast[result.status](result.message);
+    if (result.status === "success") {
       setActiveModal(null);
     }
-    const { users } = await fetchAllUsers();
-    setAllUsers(users);
   };
+
   return (
     <Form onSubmit={handleOnSubmit}>
       <Form.Group className="mb-3" controlId="formBasicRole">
         <Form.Label>Role</Form.Label>
-        <Form.Select name="role" onChange={handleOnChange} required>
+        <Form.Select
+          name="role"
+          value={form.role}
+          onChange={handleOnChange}
+          required
+        >
           <option value="">Select</option>
           <option value="coordinator">Co-ordinator</option>
           <option value="worker">Worker</option>
@@ -54,6 +68,7 @@ export const AddStaffForm = () => {
           type="text"
           placeholder="Enter Full Name"
           name="name"
+          value={form.name}
           onChange={handleOnChange}
           required
         />
@@ -64,6 +79,7 @@ export const AddStaffForm = () => {
           type="email"
           placeholder="Enter email"
           name="email"
+          value={form.email}
           onChange={handleOnChange}
           required
         />
@@ -74,24 +90,14 @@ export const AddStaffForm = () => {
           type="number"
           placeholder="Phone number"
           name="phone"
-          onChange={handleOnChange}
-          required
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          name="password"
+          value={form.phone}
           onChange={handleOnChange}
           required
         />
       </Form.Group>
 
       <Button variant="primary" type="submit">
-        Submit
+        Update
       </Button>
     </Form>
   );

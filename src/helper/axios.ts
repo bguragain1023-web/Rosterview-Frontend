@@ -1,7 +1,9 @@
 import axios, { isAxiosError } from "axios";
 import type {
   AddStaffPayload,
+  GetAllUSersResponse,
   GetUserResponse,
+  IUser,
   LoginPayload,
   LoginResponse,
   ProcessorPayload,
@@ -79,4 +81,34 @@ export const addNewStaff = (
     },
   };
   return apiProcessor(users);
+};
+
+//get all the staff
+
+export const fetchAllUsers = (): Promise<GetAllUSersResponse> => {
+  const obj = {
+    method: "get",
+    url: baseURL + "/coordinator",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
+};
+
+///update user
+
+export const updateStaff = (
+  id: string,
+  data: Partial<IUser>,
+): Promise<GetUserResponse> => {
+  const obj = {
+    method: "patch",
+    url: baseURL + "/coordinator/" + id,
+    data,
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
 };

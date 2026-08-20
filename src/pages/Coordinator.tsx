@@ -5,8 +5,13 @@ import type { Value } from "react-calendar/dist/shared/types.js";
 import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
 import { useUser } from "../contex/UserContext";
+import { fetchAllUsers } from "../helper/axios";
+import { toast } from "react-toastify";
 
-type DetailView = "schedule" | "swapRequest" | "conflicts";
+import { UsersTable } from "../components/UsersTable";
+import { UpdateStaffForm } from "../components/forms/UpdateStaffForm";
+
+type DetailView = "schedule" | "swapRequest" | "conflicts" | "updateRole";
 
 interface SidebarAction {
   id: string;
@@ -15,7 +20,7 @@ interface SidebarAction {
 }
 
 export const Coordinator = () => {
-  const { activeModal, setActiveModal } = useUser();
+  const { activeModal, setActiveModal, allUsers, setAllUsers } = useUser();
   const [selectedDate, setSelectedDate] = useState<Value>(new Date());
   const [activeView, setActiveView] = useState<DetailView>("schedule");
 
@@ -32,7 +37,7 @@ export const Coordinator = () => {
     {
       id: "update-role",
       label: "Update Staff Role",
-      onClick: () => console.log("Update role clicked"),
+      onClick: () => updateStaffRole(),
     },
     {
       id: "view-assigned",
@@ -60,6 +65,25 @@ export const Coordinator = () => {
       onClick: () => console.log("Show conflicts clicked"),
     },
   ];
+
+  const updateStaffRole = async () => {
+    // call axios for get all users const
+    setActiveView("updateRole");
+
+    const pendingState = fetchAllUsers();
+
+    toast.promise(pendingState, {
+      pending: "Please wait !! Fetching all users..",
+    });
+
+    const { status, message, users } = await pendingState;
+
+    toast[status](message);
+    if (status === "success" && users.length > 0) {
+      setAllUsers(users);
+    }
+  };
+  console.log(allUsers);
 
   return (
     <div className="layoutWrapper container">
@@ -89,10 +113,13 @@ export const Coordinator = () => {
           <div>All the schedule for the day here</div>
         )}
         {activeView === "swapRequest" && (
-          <div>All the schedule for the day here</div>
+          <div>All the sshift swap request </div>
         )}
-        {activeView === "conflicts" && (
-          <div>All the schedule for the day here</div>
+        {activeView === "conflicts" && <div>All the conflicts here </div>}
+        {activeView === "updateRole" && (
+          <div>
+            <UsersTable />
+          </div>
         )}
       </div>
 
@@ -103,6 +130,14 @@ export const Coordinator = () => {
         title="Add New Staff"
       >
         <AddStaffForm />
+      </AppModal>
+
+      <AppModal
+        show={activeModal === "updateRole"}
+        onClose={() => setActiveModal(null)}
+        title="Update staff detail"
+      >
+        <UpdateStaffForm />
       </AppModal>
     </div>
   );
