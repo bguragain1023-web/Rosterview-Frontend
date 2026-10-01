@@ -38,7 +38,6 @@ patch "/:id/cancel" - cancelLeaveRequest,
 patch "/:id/review" - reviewLeaveRequests,
 
 AVAIABILITY
-
 post "/addavailability" - createAvailability,
 get "/getallavailability" - getAllAvailability,
 patch "/:availabilityId" - updateAvailability,

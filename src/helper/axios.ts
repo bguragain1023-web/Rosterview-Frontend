@@ -1,13 +1,27 @@
 import axios, { isAxiosError } from "axios";
-import type {
-  AddStaffPayload,
-  GetAllUSersResponse,
-  GetUserResponse,
-  IUser,
-  LoginPayload,
-  LoginResponse,
-  ProcessorPayload,
-} from "../types/types";
+
+export interface LoginPayload {
+  email: string;
+  password: string;
+}
+export interface IUser {
+  name: string;
+  email: string;
+  phone: string;
+  roleId: string;
+  status: "active" | "inactive";
+  teamId?: string;
+  mustChangePassword: boolean;
+  passwordChangedAt?: Date;
+  additionalPermissions: string[];
+}
+
+export interface LoginResponse {
+  status: "success" | "error";
+  message: "string";
+  userDetail?: IUser;
+  accessJWT?: string;
+}
 
 const baseURL = import.meta.env.VITE_ROOT_API + "/api/v1";
 
@@ -51,64 +65,6 @@ export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
     method: "post",
     url: baseURL + "/users/login",
     data,
-  };
-  return apiProcessor(obj);
-};
-
-// fetch user
-
-export const getUser = async (): Promise<GetUserResponse> => {
-  const users = {
-    method: "get",
-    url: baseURL + "/users",
-    headers: {
-      Authorization: `Bearer ${getAccessJWT()}`,
-    },
-  };
-  return apiProcessor(users);
-};
-
-//add new staff
-export const addNewStaff = (
-  data: AddStaffPayload,
-): Promise<GetUserResponse> => {
-  const users = {
-    method: "post",
-    url: baseURL + "/coordinator",
-    data,
-    headers: {
-      Authorization: `Bearer ${getAccessJWT()}`,
-    },
-  };
-  return apiProcessor(users);
-};
-
-//get all the staff
-
-export const fetchAllUsers = (): Promise<GetAllUSersResponse> => {
-  const obj = {
-    method: "get",
-    url: baseURL + "/coordinator",
-    headers: {
-      Authorization: `Bearer ${getAccessJWT()}`,
-    },
-  };
-  return apiProcessor(obj);
-};
-
-///update user
-
-export const updateStaff = (
-  id: string,
-  data: Partial<IUser>,
-): Promise<GetUserResponse> => {
-  const obj = {
-    method: "patch",
-    url: baseURL + "/coordinator/" + id,
-    data,
-    headers: {
-      Authorization: `Bearer ${getAccessJWT()}`,
-    },
   };
   return apiProcessor(obj);
 };
