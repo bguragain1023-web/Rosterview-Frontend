@@ -7,7 +7,13 @@ export const Login = () => {
   if (user?._id) {
     return (
       <Navigate
-        to={user.role === "coordinator" ? "/admin" : "/staff"}
+        to={
+          user.role === "coordinator"
+            ? "/admin"
+            : user.role === "worker"
+              ? "/staff"
+              : "/"
+        }
         replace
       />
     );

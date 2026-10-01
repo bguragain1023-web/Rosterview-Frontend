@@ -20,7 +20,7 @@ interface SidebarAction {
 }
 
 export const Coordinator = () => {
-  const { activeModal, setActiveModal, allUsers, setAllUsers } = useUser();
+  const { activeModal, setActiveModal, setAllUsers } = useUser();
   const [selectedDate, setSelectedDate] = useState<Value>(new Date());
   const [activeView, setActiveView] = useState<DetailView>("schedule");
 
@@ -83,7 +83,6 @@ export const Coordinator = () => {
       setAllUsers(users);
     }
   };
-  console.log(allUsers);
 
   return (
     <div className="layoutWrapper container">

@@ -48,9 +48,12 @@ function App() {
           <Route path="/" element={<Layout />}>
             <Route index element={<Login />} />
 
-            <Route element={<PrivateRoutes />}>
-              <Route path="staff" element={<Staff />} />
+            <Route element={<PrivateRoutes allowedRoles={["coordinator"]} />}>
               <Route path="admin" element={<Coordinator />} />
+            </Route>
+
+            <Route element={<PrivateRoutes allowedRoles={["worker"]} />}>
+              <Route path="staff" element={<Staff />} />
             </Route>
           </Route>
         </Routes>
