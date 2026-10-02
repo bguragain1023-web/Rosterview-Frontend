@@ -12,15 +12,22 @@ export interface IUser {
   status: "active" | "inactive";
   teamId?: string;
   mustChangePassword: boolean;
-  passwordChangedAt?: Date;
+  passwordChangedAt?: string;
   additionalPermissions: string[];
 }
 
 export interface LoginResponse {
   status: "success" | "error";
-  message: "string";
+  message: string;
   userDetail?: IUser;
   accessJWT?: string;
+}
+
+export interface ProcessorPayload {
+  method: string;
+  url: string;
+  data?: unknown;
+  headers?: Record<string, string>;
 }
 
 const baseURL = import.meta.env.VITE_ROOT_API + "/api/v1";
