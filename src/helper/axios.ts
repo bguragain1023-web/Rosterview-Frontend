@@ -14,6 +14,7 @@ export interface IUser {
   mustChangePassword: boolean;
   passwordChangedAt?: string;
   additionalPermissions: string[];
+  role: string;
 }
 
 export interface LoginResponse {
@@ -29,6 +30,8 @@ export interface ProcessorPayload {
   data?: unknown;
   headers?: Record<string, string>;
 }
+
+export type userRole = "admin" | "coordinator" | "teamLeader" | "worker";
 
 const baseURL = import.meta.env.VITE_ROOT_API + "/api/v1";
 

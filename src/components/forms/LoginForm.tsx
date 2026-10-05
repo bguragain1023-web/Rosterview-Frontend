@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import { loginUser, type LoginPayload } from "../../helper/axios";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
-// import { useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 
 export const LoginForm = () => {
@@ -14,7 +14,7 @@ export const LoginForm = () => {
   });
 
   const { setUser } = useUser();
-  // const navigate = useNavigate();
+  const navigate = useNavigate();
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,15 +26,18 @@ export const LoginForm = () => {
     const { status, message, userDetail, accessJWT } = await pendingState;
     console.log("LOGIN RESPONSE:", pendingState);
     toast[status](message);
-    if (status === "success" && accessJWT) {
+    if (status === "success" && accessJWT && userDetail) {
       localStorage.setItem("accessJWT", accessJWT);
       setUser(userDetail);
-
-      // if (userDetail?.role === "coordinator") {
-      //   navigate("/admin");
-      // } else {
-      //   navigate("/staff");
-      // }
+      if (userDetail.role === "admin") {
+        navigate("/admin");
+      } else if (userDetail.role === "coordinator") {
+        navigate("/coordinator");
+      } else if (userDetail.role === "teamLeader") {
+        navigate("/teamleader");
+      } else if (userDetail.role === "worker") {
+        navigate("/worker");
+      }
     }
   };
 
