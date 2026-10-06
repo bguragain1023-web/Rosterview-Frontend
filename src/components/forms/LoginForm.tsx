@@ -23,20 +23,26 @@ export const LoginForm = () => {
     toast.promise(pendingState, {
       pending: "Please wait",
     });
+
     const { status, message, userDetail, accessJWT } = await pendingState;
     console.log("LOGIN RESPONSE:", pendingState);
     toast[status](message);
     if (status === "success" && accessJWT && userDetail) {
       localStorage.setItem("accessJWT", accessJWT);
       setUser(userDetail);
-      if (userDetail.role === "admin") {
-        navigate("/admin");
-      } else if (userDetail.role === "coordinator") {
-        navigate("/coordinator");
-      } else if (userDetail.role === "teamLeader") {
-        navigate("/teamleader");
-      } else if (userDetail.role === "worker") {
-        navigate("/worker");
+
+      if (userDetail.mustChangePassword === true) {
+        navigate("/changePassword");
+      } else {
+        if (userDetail.role === "admin") {
+          navigate("/admin");
+        } else if (userDetail.role === "coordinator") {
+          navigate("/coordinator");
+        } else if (userDetail.role === "teamLeader") {
+          navigate("/teamleader");
+        } else if (userDetail.role === "worker") {
+          navigate("/worker");
+        }
       }
     }
   };

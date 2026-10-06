@@ -6,6 +6,10 @@ import "react-toastify/dist/ReactToastify.css";
 import { Layout } from "./components/layout/Layout";
 import { PrivateRoutes } from "./components/Private/PrivateRoutes";
 import { Admin } from "./pages/Admin";
+import { Coordinator } from "./pages/Coordinator";
+import { TeamLeader } from "./pages/TeamLeader";
+import { Worker } from "./pages/worker";
+import { ChangePassword } from "./pages/ChangePassword";
 
 function App() {
   return (
@@ -14,8 +18,30 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route index element={<Login />} />
 
+          <Route
+            element={
+              <PrivateRoutes
+                allowedRoles={["admin", "coordinator", "teamLeader", "worker"]}
+              />
+            }
+          >
+            <Route path="changePassword" element={<ChangePassword />} />
+          </Route>
+
           <Route element={<PrivateRoutes allowedRoles={["admin"]} />}>
             <Route path="admin" element={<Admin />} />
+          </Route>
+
+          <Route element={<PrivateRoutes allowedRoles={["coordinator"]} />}>
+            <Route path="coordinator" element={<Coordinator />} />
+          </Route>
+
+          <Route element={<PrivateRoutes allowedRoles={["teamLeader"]} />}>
+            <Route path="teamLeader" element={<TeamLeader />} />
+          </Route>
+
+          <Route element={<PrivateRoutes allowedRoles={["worker"]} />}>
+            <Route path="worker" element={<Worker />} />
           </Route>
         </Route>
       </Routes>
