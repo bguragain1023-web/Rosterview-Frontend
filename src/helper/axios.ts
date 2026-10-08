@@ -31,6 +31,15 @@ export interface ProcessorPayload {
   headers?: Record<string, string>;
 }
 
+export interface ChangePasswordPayload {
+  newPassword: string;
+}
+
+export interface StatusMessageOnly {
+  status: "success" | "error";
+  message: string;
+}
+
 export type userRole = "admin" | "coordinator" | "teamLeader" | "worker";
 
 const baseURL = import.meta.env.VITE_ROOT_API + "/api/v1";
@@ -75,6 +84,21 @@ export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
     method: "post",
     url: baseURL + "/users/login",
     data,
+  };
+  return apiProcessor(obj);
+};
+
+//chnage Password
+export const changePassword = async (
+  data: ChangePasswordPayload,
+): Promise<StatusMessageOnly> => {
+  const obj = {
+    method: "patch",
+    url: baseURL + "/users/change-password",
+    data,
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
   };
   return apiProcessor(obj);
 };
