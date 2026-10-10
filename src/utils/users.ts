@@ -1,5 +1,4 @@
-import { getUser } from "../helper/axios";
-import type { IUser } from "../types/types";
+import { getLoggedInUser, type IUser } from "../helper/axios";
 
 export const autoLogin = async (): Promise<IUser | null> => {
   const accessJWT = localStorage.getItem("accessJWT");
@@ -7,6 +6,9 @@ export const autoLogin = async (): Promise<IUser | null> => {
   if (!accessJWT) {
     return null;
   }
-  const { status, user } = await getUser();
-  return status == "success" && user ? user : null;
+  const response = await getLoggedInUser();
+  if (!response || response.status !== "success" || !response.userDetail) {
+    return null;
+  }
+  return response.userDetail;
 };

@@ -1,4 +1,5 @@
 import axios, { isAxiosError } from "axios";
+import type { GetMeResponse } from "../types/types";
 
 export interface LoginPayload {
   email: string;
@@ -100,5 +101,17 @@ export const changePassword = async (
       Authorization: `Bearer ${getAccessJWT()}`,
     },
   };
+  return apiProcessor(obj);
+};
+
+export const getLoggedInUser = async (): Promise<GetMeResponse | null> => {
+  const obj = {
+    method: "get",
+    url: baseURL + "/users/me",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+
   return apiProcessor(obj);
 };
