@@ -15,16 +15,22 @@ import { autoLogin } from "./utils/users";
 import { useEffect } from "react";
 
 function App() {
-  const { setUser } = useUser();
+  const { setUser, setIsAuthLoading } = useUser();
 
   useEffect(() => {
     const updateUser = async () => {
-      const userDetail = await autoLogin();
-      setUser(userDetail);
+      try {
+        const userDetail = await autoLogin();
+        setUser(userDetail);
+      } catch (error) {
+        console.error("Auto-Login fail", error);
+      } finally {
+        setIsAuthLoading(false);
+      }
     };
 
     updateUser();
-  }, [setUser]);
+  }, [setUser, setIsAuthLoading]);
 
   return (
     <>

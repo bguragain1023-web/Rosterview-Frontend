@@ -12,6 +12,8 @@ interface UserContextType {
   setAllUsers: React.Dispatch<React.SetStateAction<IUser[]>>;
   setEditUser: React.Dispatch<React.SetStateAction<IUser | null>>;
   editUser: IUser | null;
+  isAuthLoading: boolean;
+  setIsAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -20,6 +22,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [activeModal, setActiveModal] = useState<ModalType>(null);
   const [allUsers, setAllUsers] = useState<IUser[]>([]);
   const [editUser, setEditUser] = useState<IUser | null>(null);
+  const [isAuthLoading, setIsAuthLoading] = useState(true);
 
   return (
     <UserContext.Provider
@@ -32,6 +35,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setAllUsers,
         editUser,
         setEditUser,
+        isAuthLoading,
+        setIsAuthLoading,
       }}
     >
       {children}

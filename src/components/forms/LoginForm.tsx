@@ -4,7 +4,7 @@ import Form from "react-bootstrap/Form";
 import { loginUser, type LoginPayload } from "../../helper/axios";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import useForm from "../../hooks/useForm";
 
 export const LoginForm = () => {
@@ -13,9 +13,33 @@ export const LoginForm = () => {
     password: "",
   });
 
-  const { setUser } = useUser();
+  const { setUser, user, isAuthLoading } = useUser();
   const navigate = useNavigate();
 
+  if (isAuthLoading) {
+    return null;
+  }
+  if (user) {
+    if (user.mustChangePassword) {
+      return <Navigate to="/changePassword" replace />;
+    }
+
+    if (user.role === "admin") {
+      return <Navigate to="/admin" replace />;
+    }
+
+    if (user.role === "coordinator") {
+      return <Navigate to="/coordinator" replace />;
+    }
+
+    if (user.role === "teamLeader") {
+      return <Navigate to="/teamLeader" replace />;
+    }
+
+    if (user.role === "worker") {
+      return <Navigate to="/worker" replace />;
+    }
+  }
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const pendingState = loginUser(form);

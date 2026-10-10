@@ -6,7 +6,11 @@ interface PrivateRoutesProps {
 }
 
 export const PrivateRoutes = ({ allowedRoles }: PrivateRoutesProps) => {
-  const { user } = useUser();
+  const { user, isAuthLoading } = useUser();
+
+  if (isAuthLoading) {
+    return null;
+  }
   console.log("USER:", user);
   console.log("USER ROLE:", user?.role);
   if (!user) {
