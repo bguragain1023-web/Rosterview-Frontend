@@ -21,7 +21,9 @@ function App() {
     const updateUser = async () => {
       try {
         const userDetail = await autoLogin();
-        setUser(userDetail);
+        if (userDetail) {
+          setUser(userDetail);
+        }
       } catch (error) {
         console.error("Auto-Login fail", error);
       } finally {

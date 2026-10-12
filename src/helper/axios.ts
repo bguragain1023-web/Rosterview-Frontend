@@ -15,7 +15,7 @@ export interface IUser {
   mustChangePassword: boolean;
   passwordChangedAt?: string;
   additionalPermissions: string[];
-  role: string;
+  role: userRole;
 }
 
 export interface LoginResponse {
