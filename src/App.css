@@ -8,6 +8,9 @@
   --color-text: #e6edf3;
   --color-text-muted: #8b949e;
   --color-border: #262d38;
+  --box-bg: #2a2f3aae;
+  --bs-table-bg: #2a2f3aae;
+  --cyan-hover: #203f44;
 }
 
 /* :root {
@@ -28,7 +31,7 @@ body {
 }
 
 .title {
-  font-size: 3rem;
+  font-size: 1.4rem;
   font-weight: bolder;
   color: var(--color-text);
 }
@@ -38,6 +41,7 @@ body {
 .layoutWrapper {
   background: var(--color-primary);
   min-height: 87vh;
+  color: var(--color-text);
 }
 
 .footer {
@@ -62,7 +66,7 @@ body {
   padding: 40px;
   color: var(--color-text);
   width: 30%;
-  font-size: 2rem;
+  font-size: 1rem;
   border: 2px solid var(--color-border);
   border-radius: 10px 50px 10px 50px;
 }
@@ -76,4 +80,64 @@ body {
   --bs-btn-hover-color: black;
 }
 
-/* coordinator */
+/* PageLayout */
+
+.sideBar {
+  padding: 10px;
+  flex: 1;
+  border-right: 2px solid var(--color-border);
+  transition: all 0.3s ease-in-out;
+}
+.sideBarMenu {
+  padding: 10px;
+}
+
+.sideBarMenu:hover {
+  background: var(--cyan-hover);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.mainScreen {
+  padding: 10px;
+  flex: 6;
+}
+
+.quickActionMenu {
+  padding: 10px;
+  font-size: 14px;
+}
+
+.mutedDate {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.staffDetail {
+  border: 1px solid var(--color-border);
+  padding: 20px;
+  width: 25%;
+  flex-grow: 1;
+  background: var(--box-bg);
+  border-radius: 20px;
+}
+.total {
+  font-size: 14px;
+  color: var(--color-text-muted);
+}
+.quickActionMenu {
+  background: var(--box-bg);
+  padding: 10px;
+  border-radius: 10px;
+}
+
+.quickActionMenu:hover {
+  background: var(--cyan-hover);
+  cursor: pointer;
+}
+
+.mainScreenSection .table {
+  --bs-table-bg: var(--box-bg);
+  --bs-table-color: var(--color-text);
+  border-color: rgba(109, 108, 108, 0.146);
+}
