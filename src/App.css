@@ -13,6 +13,43 @@
   --cyan-hover: #203f44;
 }
 
+/* {
+
+  Listing the colors used and preparing a CSS variables snippet.
+Here are all the colors from the dashboard.
+
+Role	             Hex
+Page background	  #0d1117
+Sidebar background	#10151c
+Cards, panels, buttons	#161b22
+Borders	
+#262d38
+Button border	
+#2f3846
+Table row dividers	
+#1f2631
+Nav hover background	
+#1c2330
+Main text	
+#e6edf3
+Muted text	
+#9aa4b2
+Cyan accent	
+#22d3ee
+Cyan hover (links)	
+#67e8f9
+Cyan tint (active nav, avatars, Active pill)	
+#12303a
+Orange accent	
+#fb923c
+Text on orange button	
+#1a1005
+Inactive pill background	
+#2a2f3a
+Inactive pill text	
+#aab3c0
+
+} */
 /* :root {
   --bg: #0d1117;
   --bg-sidebar: #10151c;
@@ -90,6 +127,7 @@ body {
 }
 .sideBarMenu {
   padding: 10px;
+  font-size: 14px;
 }
 
 .sideBarMenu:hover {
@@ -116,11 +154,16 @@ body {
 .staffDetail {
   border: 1px solid var(--color-border);
   padding: 20px;
-  width: 25%;
-  flex-grow: 1;
+  flex: 1 1 230px;
   background: var(--box-bg);
   border-radius: 20px;
 }
+
+.staffDetailIcon {
+  color: skyblue;
+  font-size: 30px;
+}
+
 .total {
   font-size: 14px;
   color: var(--color-text-muted);
