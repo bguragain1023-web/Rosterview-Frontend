@@ -1,5 +1,6 @@
 import axios, { isAxiosError } from "axios";
 import type { GetMeResponse } from "../types/types";
+import type { AddStaffPayload } from "../components/forms/AddStaffForm";
 
 export interface LoginPayload {
   email: string;
@@ -23,6 +24,13 @@ export interface LoginResponse {
   message: string;
   userDetail?: IUser;
   accessJWT?: string;
+}
+
+export interface AddUserResponse {
+  status: "success" | "error";
+  message: string;
+  userDetail?: IUser;
+  tempPassword: string;
 }
 
 export interface ProcessorPayload {
@@ -108,6 +116,21 @@ export const getLoggedInUser = async (): Promise<GetMeResponse | null> => {
   const obj = {
     method: "get",
     url: baseURL + "/users/me",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+
+  return apiProcessor(obj);
+};
+
+export const addNewUser = async (
+  data: AddStaffPayload,
+): Promise<AddUserResponse> => {
+  const obj = {
+    method: "post",
+    url: baseURL + "/users/createuser",
+    data,
     headers: {
       Authorization: `Bearer ${getAccessJWT()}`,
     },

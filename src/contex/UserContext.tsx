@@ -1,7 +1,7 @@
 import { createContext, useContext, useState } from "react";
 import type { IUser } from "../helper/axios";
 
-type ModalType = "addStaff" | "updateRole" | "createShift" | null;
+type ModalType = "addStaff" | "updateStaff" | "createShift" | null;
 
 interface UserContextType {
   user: IUser | undefined;

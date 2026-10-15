@@ -4,8 +4,13 @@ import { SlPeople } from "react-icons/sl";
 import { RiTeamLine } from "react-icons/ri";
 import { SlCalender } from "react-icons/sl";
 import { IoMdAdd } from "react-icons/io";
+import { useUser } from "../contex/UserContext";
+import { AppModal } from "../components/custom/AppModal";
+import { AddStaffForm } from "../components/forms/AddStaffForm";
 
 export const Admin = () => {
+  const { setActiveModal, activeModal } = useUser();
+  const closeModal = () => setActiveModal(null);
   return (
     <>
       <div className="layoutWrapper d-flex p-3">
@@ -52,29 +57,47 @@ export const Admin = () => {
               </div>
             </div>
 
-            <div className="staffDetail text-center">
-              <div className="total">Total Staff</div>
-              <hr />
-              <span>20</span>
+            <div className="staffDetail justify-content-center  d-flex align-items-center gap-3  ">
+              <div className="staffDetailIcon">
+                <SlPeople />
+              </div>
+              <div>
+                <div className="total"> Total Team</div>
+                <hr />
+                <span>20</span>
+              </div>
             </div>
 
-            <div className="staffDetail text-center">
-              <div className="total">Total Staff</div>
-              <hr />
-              <span>20</span>
+            <div className="staffDetail justify-content-center  d-flex align-items-center gap-3  ">
+              <div className="staffDetailIcon">
+                <SlPeople />
+              </div>
+              <div>
+                <div className="total"> Total Clients</div>
+                <hr />
+                <span>20</span>
+              </div>
             </div>
 
-            <div className="staffDetail text-center">
-              <div className="total">Total Staff</div>
-              <hr />
-              <span>20</span>
+            <div className="staffDetail justify-content-center  d-flex align-items-center gap-3  ">
+              <div className="staffDetailIcon">
+                <SlPeople />
+              </div>
+              <div>
+                <div className="total">Coordinators and Leaders</div>
+                <hr />
+                <span>20</span>
+              </div>
             </div>
           </div>
 
           <div className="mainScreenSection mt-5">
             <div className="subtitle">Quick Actions</div>
             <div className="quickActions d-flex gap-3 mt-3">
-              <div className="quickActionMenu">
+              <div
+                className="quickActionMenu "
+                onClick={() => setActiveModal("addStaff")}
+              >
                 {" "}
                 <IoMdAdd /> Add New Staff
               </div>
@@ -83,6 +106,14 @@ export const Admin = () => {
               <div className="quickActionMenu">View All Workers's Shift</div>
             </div>
           </div>
+
+          <AppModal
+            show={activeModal !== null}
+            onClose={closeModal}
+            title={activeModal === "addStaff" ? "Add New Staff" : ""}
+          >
+            {activeModal === "addStaff" && <AddStaffForm />}
+          </AppModal>
 
           <div className="mainScreenSection mt-4">
             <div>Recently added staff</div>

@@ -2,29 +2,69 @@ import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import useForm from "../../hooks/useForm";
 import type { SubmitEvent } from "react";
-import type { AddStaffPayload } from "../../types/types";
-import { addNewStaff, fetchAllUsers } from "../../helper/axios";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
+import { CustomInput } from "../custom/CustomInput";
+import { addNewUser } from "../../helper/axios";
+
+export interface AddStaffPayload {
+  name: string;
+  role: string;
+  phone: string;
+  email: string;
+}
+
+const initialState = {
+  name: "",
+  role: "",
+  email: "",
+  phone: "",
+};
 
 export const AddStaffForm = () => {
-  const initialState = {
-    name: "",
-    role: "",
-    email: "",
-    phone: "",
-    password: "",
-  };
-
-  const { setActiveModal, setAllUsers } = useUser();
-
+  const { setActiveModal } = useUser();
   const { form, setForm, handleOnChange } =
     useForm<AddStaffPayload>(initialState);
+
+  const inputFields = [
+    {
+      label: "Full Name",
+      type: "text",
+      Placeholder: "eg : John Doe",
+      name: "name",
+      value: form.name,
+    },
+
+    {
+      label: "Email Address",
+      type: "email",
+      Placeholder: "eg: abc@email.com",
+      name: "email",
+      value: form.email,
+    },
+
+    {
+      label: "Role",
+      type: "text",
+      Placeholder: "Role",
+      name: "role",
+      value: form.role,
+    },
+
+    {
+      label: "Phone no.",
+      type: "text",
+      Placeholder: "eg:0400000000",
+      name: "phone",
+      value: form.phone,
+    },
+  ];
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("Add form submitted", form);
-    const pendingState = addNewStaff(form);
+
+    const pendingState = addNewUser(form);
     toast.promise(pendingState, {
       pending: "Adding New staff",
     });
@@ -35,60 +75,12 @@ export const AddStaffForm = () => {
       setForm(initialState);
       setActiveModal(null);
     }
-    const { users } = await fetchAllUsers();
-    setAllUsers(users);
   };
   return (
     <Form onSubmit={handleOnSubmit}>
-      <Form.Group className="mb-3" controlId="formBasicRole">
-        <Form.Label>Role</Form.Label>
-        <Form.Select name="role" onChange={handleOnChange} required>
-          <option value="">Select</option>
-          <option value="coordinator">Co-ordinator</option>
-          <option value="worker">Worker</option>
-        </Form.Select>
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicName">
-        <Form.Label>Name</Form.Label>
-        <Form.Control
-          type="text"
-          placeholder="Enter Full Name"
-          name="name"
-          onChange={handleOnChange}
-          required
-        />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicEmail">
-        <Form.Label>Email address</Form.Label>
-        <Form.Control
-          type="email"
-          placeholder="Enter email"
-          name="email"
-          onChange={handleOnChange}
-          required
-        />
-      </Form.Group>
-      <Form.Group className="mb-3" controlId="formBasicphone">
-        <Form.Label>Phone </Form.Label>
-        <Form.Control
-          type="number"
-          placeholder="Phone number"
-          name="phone"
-          onChange={handleOnChange}
-          required
-        />
-      </Form.Group>
-
-      <Form.Group className="mb-3" controlId="formBasicPassword">
-        <Form.Label>Password</Form.Label>
-        <Form.Control
-          type="password"
-          placeholder="Password"
-          name="password"
-          onChange={handleOnChange}
-          required
-        />
-      </Form.Group>
+      {inputFields.map((input) => (
+        <CustomInput key={input.name} {...input} onChange={handleOnChange} />
+      ))}
 
       <Button variant="primary" type="submit">
         Submit

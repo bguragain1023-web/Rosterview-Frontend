@@ -49,7 +49,7 @@ export const ChangePassword = () => {
 
     const result = await pendingState;
     const { status, message } = result;
-    if (status === "success") {
+    if (status === "success" && user) {
       if (user.role === "admin") {
         navigate("/admin");
       } else if (user.role === "coordinator") {
