@@ -19,17 +19,17 @@ export interface IUser {
   role: userRole;
 }
 
-export interface LoginResponse {
-  status: "success" | "error";
+export interface LoginSuccess {
+  status: "success";
   message: string;
-  userDetail?: IUser;
-  accessJWT?: string;
+  userDetail: IUser;
+  accessJWT: string;
 }
 
 export interface AddUserResponse {
-  status: "success" | "error";
+  status: "success";
   message: string;
-  userDetail?: IUser;
+  userDetail: IUser;
   tempPassword: string;
 }
 
@@ -48,6 +48,10 @@ export interface StatusMessageOnly {
   status: "success" | "error";
   message: string;
 }
+export interface ApiError {
+  status: "error";
+  message: string;
+}
 
 export type userRole = "admin" | "coordinator" | "teamLeader" | "worker";
 
@@ -57,12 +61,12 @@ const getAccessJWT = () => {
   return localStorage.getItem("accessJWT");
 };
 
-const apiProcessor = async ({
+const apiProcessor = async <T>({
   method,
   url,
   data,
   headers,
-}: ProcessorPayload) => {
+}: ProcessorPayload): Promise<T | ApiError> => {
   console.log("apiProcessor called with:", { method, url, data });
   try {
     const response = await axios({
@@ -71,13 +75,13 @@ const apiProcessor = async ({
       data,
       headers,
     });
-    return response.data;
+    return response.data as T;
   } catch (error) {
     console.log("apiProcessor caught error:", error);
     if (isAxiosError(error)) {
       return {
         status: "error",
-        message: error.response?.data?.error || error.message,
+        message: error.response?.data?.message || error.message,
       };
     }
     return {
@@ -88,7 +92,9 @@ const apiProcessor = async ({
 };
 
 //login user
-export const loginUser = async (data: LoginPayload): Promise<LoginResponse> => {
+export const loginUser = async (
+  data: LoginPayload,
+): Promise<LoginSuccess | ApiError> => {
   const obj = {
     method: "post",
     url: baseURL + "/users/login",
@@ -112,7 +118,7 @@ export const changePassword = async (
   return apiProcessor(obj);
 };
 
-export const getLoggedInUser = async (): Promise<GetMeResponse | null> => {
+export const getLoggedInUser = async (): Promise<GetMeResponse | ApiError> => {
   const obj = {
     method: "get",
     url: baseURL + "/users/me",
@@ -126,7 +132,7 @@ export const getLoggedInUser = async (): Promise<GetMeResponse | null> => {
 
 export const addNewUser = async (
   data: AddStaffPayload,
-): Promise<AddUserResponse> => {
+): Promise<AddUserResponse | ApiError> => {
   const obj = {
     method: "post",
     url: baseURL + "/users/createuser",

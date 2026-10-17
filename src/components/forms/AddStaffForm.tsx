@@ -30,7 +30,7 @@ export const AddStaffForm = () => {
     {
       label: "Full Name",
       type: "text",
-      Placeholder: "eg : John Doe",
+      placeholder: "eg : John Doe",
       name: "name",
       value: form.name,
     },
@@ -38,7 +38,7 @@ export const AddStaffForm = () => {
     {
       label: "Email Address",
       type: "email",
-      Placeholder: "eg: abc@email.com",
+      placeholder: "eg: abc@email.com",
       name: "email",
       value: form.email,
     },
@@ -46,7 +46,7 @@ export const AddStaffForm = () => {
     {
       label: "Role",
       type: "text",
-      Placeholder: "Role",
+      placeholder: "Role",
       name: "role",
       value: form.role,
     },
@@ -54,7 +54,7 @@ export const AddStaffForm = () => {
     {
       label: "Phone no.",
       type: "text",
-      Placeholder: "eg:0400000000",
+      placeholder: "eg:0400000000",
       name: "phone",
       value: form.phone,
     },
