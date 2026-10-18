@@ -48,10 +48,11 @@ export const LoginForm = () => {
       pending: "Please wait",
     });
 
-    const { status, message, userDetail, accessJWT } = await pendingState;
-    console.log("LOGIN RESPONSE:", pendingState);
-    toast[status](message);
-    if (status === "success" && accessJWT && userDetail) {
+    const res = await pendingState;
+    toast[res.status](res.message);
+
+    if (res.status === "success") {
+      const { accessJWT, userDetail } = res;
       localStorage.setItem("accessJWT", accessJWT);
       setUser(userDetail);
 

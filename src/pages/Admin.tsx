@@ -7,10 +7,18 @@ import { IoMdAdd } from "react-icons/io";
 import { useUser } from "../contex/UserContext";
 import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
+import { AddClientForm } from "../components/forms/AddClientForm";
 
 export const Admin = () => {
   const { setActiveModal, activeModal } = useUser();
   const closeModal = () => setActiveModal(null);
+  const modals = {
+    addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
+    updateStaff: { title: "Update Staff Detail", body: <>Comming soon</> },
+    createShift: { title: " Create Shift", body: <>Coming sooon</> },
+    createTeam: { title: "Create Team", body: <>Coming soon</> },
+    addClient: { title: "Add New Client ", body: <AddClientForm /> },
+  };
   return (
     <>
       <div className="layoutWrapper d-flex p-3">
@@ -95,24 +103,48 @@ export const Admin = () => {
             <div className="subtitle">Quick Actions</div>
             <div className="quickActions d-flex gap-3 mt-3">
               <div
-                className="quickActionMenu "
+                className="quickActionMenu text-info"
                 onClick={() => setActiveModal("addStaff")}
               >
                 {" "}
                 <IoMdAdd /> Add New Staff
               </div>
-              <div className="quickActionMenu">Create Shift</div>
-              <div className="quickActionMenu">Create Team</div>
-              <div className="quickActionMenu">View All Workers's Shift</div>
+
+              <div
+                className="quickActionMenu text-warning "
+                onClick={() => setActiveModal("addClient")}
+              >
+                {" "}
+                <IoMdAdd /> Add New Client
+              </div>
+
+              <div
+                className="quickActionMenu"
+                onClick={() => setActiveModal("createShift")}
+              >
+                Create Shift
+              </div>
+              <div
+                className="quickActionMenu"
+                onClick={() => setActiveModal("createTeam")}
+              >
+                Create Team
+              </div>
+              <div
+                className="quickActionMenu"
+                onClick={() => setActiveModal("updateStaff")}
+              >
+                Update Staff Detail
+              </div>
             </div>
           </div>
 
           <AppModal
             show={activeModal !== null}
             onClose={closeModal}
-            title={activeModal === "addStaff" ? "Add New Staff" : ""}
+            title={activeModal ? modals[activeModal].title : ""}
           >
-            {activeModal === "addStaff" && <AddStaffForm />}
+            {activeModal && modals[activeModal].body}
           </AppModal>
 
           <div className="mainScreenSection mt-4">
