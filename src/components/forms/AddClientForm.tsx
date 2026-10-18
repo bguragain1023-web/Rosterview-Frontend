@@ -2,6 +2,7 @@ import { Button, Form } from "react-bootstrap";
 import { useUser } from "../../contex/UserContext";
 import useForm from "../../hooks/useForm";
 import { CustomInput } from "../custom/CustomInput";
+import type { SubmitEvent } from "react";
 
 export interface AddClientPayload {
   name: string;
@@ -63,8 +64,9 @@ export const AddClientForm = () => {
     },
   ];
 
-  const handleOnSubmit = () => {
-    console.log("Here you go");
+  const handleOnSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    console.log("client form ", form);
   };
 
   return (

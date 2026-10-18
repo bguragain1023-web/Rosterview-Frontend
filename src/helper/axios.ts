@@ -1,12 +1,14 @@
 import axios, { isAxiosError } from "axios";
 import type { GetMeResponse } from "../types/types";
 import type { AddStaffPayload } from "../components/forms/AddStaffForm";
+import type { AddClientPayload } from "../components/forms/AddClientForm";
 
 export interface LoginPayload {
   email: string;
   password: string;
 }
 export interface IUser {
+  _id: string;
   name: string;
   email: string;
   phone: string;
@@ -17,6 +19,16 @@ export interface IUser {
   passwordChangedAt?: string;
   additionalPermissions: string[];
   role: userRole;
+}
+export interface IClient {
+  _id: string;
+  name: string;
+  phone: string;
+  address: string;
+  email: string;
+  notes?: string;
+  isActive: boolean;
+  createdBy: string;
 }
 
 export interface LoginSuccess {
@@ -31,6 +43,11 @@ export interface AddUserResponse {
   message: string;
   userDetail: IUser;
   tempPassword: string;
+}
+export interface AddClientResponse {
+  status: "success";
+  message: string;
+  client: IClient;
 }
 
 export interface ProcessorPayload {
@@ -142,5 +159,19 @@ export const addNewUser = async (
     },
   };
 
+  return apiProcessor(obj);
+};
+
+export const addNewClient = async (
+  data: AddClientPayload,
+): Promise<AddClientResponse | ApiError> => {
+  const obj = {
+    method: "post",
+    url: baseURL + "/clients/createclient",
+    data,
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
   return apiProcessor(obj);
 };
