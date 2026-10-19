@@ -66,7 +66,7 @@ export const AddStaffForm = () => {
 
     const pendingState = addNewUser(form);
     toast.promise(pendingState, {
-      pending: "Adding New staff",
+      pending: "Adding New staff, please Wait!!",
     });
 
     const { status, message } = await pendingState;

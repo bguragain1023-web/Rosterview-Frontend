@@ -3,6 +3,8 @@ import { useUser } from "../../contex/UserContext";
 import useForm from "../../hooks/useForm";
 import { CustomInput } from "../custom/CustomInput";
 import type { SubmitEvent } from "react";
+import { addNewClient } from "../../helper/axios";
+import { toast } from "react-toastify";
 
 export interface AddClientPayload {
   name: string;
@@ -64,9 +66,20 @@ export const AddClientForm = () => {
     },
   ];
 
-  const handleOnSubmit = (e: SubmitEvent<HTMLFormElement>) => {
+  const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("client form ", form);
+    const pendingState = addNewClient(form);
+    toast.promise(pendingState, {
+      pending: "Adding New client.. Please wait !!",
+    });
+
+    const { status, message } = await pendingState;
+    toast[status](message);
+    if (status === "success") {
+      setForm(initialState);
+      setActiveModal(null);
+    }
   };
 
   return (
