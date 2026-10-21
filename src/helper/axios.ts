@@ -2,6 +2,7 @@ import axios, { isAxiosError } from "axios";
 import type { GetMeResponse } from "../types/types";
 import type { AddStaffPayload } from "../components/forms/AddStaffForm";
 import type { AddClientPayload } from "../components/forms/AddClientForm";
+import type { CreateTeamPayload } from "../components/forms/CreateTeamForm";
 
 export interface LoginPayload {
   email: string;
@@ -31,6 +32,15 @@ export interface IClient {
   createdBy: string;
 }
 
+export interface ITeam {
+  _id: string;
+  name: string;
+  normalizedName: string;
+  description: string;
+  teamLeaderId?: string | null;
+  isActive: boolean;
+}
+
 export interface LoginSuccess {
   status: "success";
   message: string;
@@ -48,6 +58,12 @@ export interface AddClientResponse {
   status: "success";
   message: string;
   client: IClient;
+}
+
+export interface AddTeamResponse {
+  status: "success";
+  message: string;
+  team: ITeam;
 }
 
 export interface ProcessorPayload {
@@ -168,6 +184,20 @@ export const addNewClient = async (
   const obj = {
     method: "post",
     url: baseURL + "/clients/createclient",
+    data,
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
+};
+
+export const addNewTeam = async (
+  data: CreateTeamPayload,
+): Promise<AddTeamResponse | ApiError> => {
+  const obj = {
+    method: "post",
+    url: baseURL + "/teams/createteam",
     data,
     headers: {
       Authorization: `Bearer ${getAccessJWT()}`,
