@@ -1,5 +1,5 @@
 import { createContext, useContext, useState } from "react";
-import type { IUser } from "../helper/axios";
+import type { ITeam, IUser } from "../helper/axios";
 
 type ModalType =
   | "addStaff"
@@ -20,6 +20,8 @@ interface UserContextType {
   editUser: IUser | null;
   isAuthLoading: boolean;
   setIsAuthLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  allTeams: ITeam[];
+  setAllTeam: React.Dispatch<React.SetStateAction<ITeam[]>>;
 }
 
 const UserContext = createContext<UserContextType | undefined>(undefined);
@@ -29,6 +31,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
   const [allUsers, setAllUsers] = useState<IUser[]>([]);
   const [editUser, setEditUser] = useState<IUser | null>(null);
   const [isAuthLoading, setIsAuthLoading] = useState(true);
+  const [allTeams, setAllTeam] = useState<ITeam[]>([]);
 
   return (
     <UserContext.Provider
@@ -43,6 +46,8 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         setEditUser,
         isAuthLoading,
         setIsAuthLoading,
+        allTeams,
+        setAllTeam,
       }}
     >
       {children}

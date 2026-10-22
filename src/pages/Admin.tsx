@@ -12,7 +12,7 @@ import { AddClientForm } from "../components/forms/AddClientForm";
 import { CreateTeamForm } from "../components/forms/CreateTeamForm";
 
 export const Admin = () => {
-  const { setActiveModal, activeModal } = useUser();
+  const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
@@ -24,6 +24,13 @@ export const Admin = () => {
     },
     addClient: { title: "Add New Client ", body: <AddClientForm /> },
   };
+  const today = new Date().toLocaleDateString("en-AU", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+
   return (
     <>
       <div className="layoutWrapper d-flex p-3">
@@ -50,10 +57,10 @@ export const Admin = () => {
             <div className="pageName d-flex justify-content-between align-items-center p-2">
               <div className="dashboardName">
                 <div className="title">Admin Dashboard</div>
-                <span className="mutedDate">Wednesday, 12 Oct 2026</span>
+                <span className="mutedDate">{today}</span>
               </div>
               <div className="profile">
-                <div className="profileName">Welcome Brazesh</div>
+                <div className="profileName">Welcome {user?.name}</div>
               </div>
             </div>
           </div>
@@ -134,12 +141,6 @@ export const Admin = () => {
                 onClick={() => setActiveModal("createTeam")}
               >
                 Create Team
-              </div>
-              <div
-                className="quickActionMenu"
-                onClick={() => setActiveModal("updateStaff")}
-              >
-                Update Staff Detail
               </div>
             </div>
           </div>
