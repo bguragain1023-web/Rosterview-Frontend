@@ -205,3 +205,14 @@ export const addNewTeam = async (
   };
   return apiProcessor(obj);
 };
+
+export const getAllUsers = async () => {
+  const obj = {
+    method: "get",
+    url: baseURL + "users/readuser",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
+};

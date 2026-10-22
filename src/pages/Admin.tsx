@@ -1,4 +1,3 @@
-import Table from "react-bootstrap/Table";
 import { MdOutlineDashboard } from "react-icons/md";
 import { SlPeople } from "react-icons/sl";
 import { RiTeamLine } from "react-icons/ri";
@@ -8,12 +7,33 @@ import { useUser } from "../contex/UserContext";
 import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
 import { AddClientForm } from "../components/forms/AddClientForm";
-
 import { CreateTeamForm } from "../components/forms/CreateTeamForm";
+import { useState, type ReactNode } from "react";
+import { DataTable, type Column } from "../components/custom/DataTable";
+import type { IClient, IUser } from "../helper/axios";
+import { Button } from "react-bootstrap";
+
+type TableName = "staff" | "client" | "team";
+
+const staffColumns: Column<IUser>[] = [
+  { header: "Name", render: (u) => u.name },
+  { header: "Email", render: (u) => u.email },
+  { header: "Role", render: (u) => u.role },
+  { header: "Status", render: (u) => u.status },
+];
+
+const clientColumns: Column<IClient>[] = [
+  { header: "Name", render: (c) => c.name },
+  { header: "Phone", render: (c) => c.phone },
+];
 
 export const Admin = () => {
+  const [showTable, setShowTable] = useState<TableName>("staff");
+  const [staffList, setStaffList] = useState<IUser[]>([]);
+  const [clientList, setClientList] = useState<IClient[]>([]);
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
+
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
     updateStaff: { title: "Update Staff Detail", body: <>Comming soon</> },
@@ -30,6 +50,23 @@ export const Admin = () => {
     month: "long",
     year: "numeric",
   });
+
+  const tables: Record<TableName, ReactNode> = {
+    staff: (
+      <DataTable
+        columns={staffColumns}
+        rows={staffList}
+        getKey={(u) => u.email}
+      />
+    ),
+    client: (
+      <DataTable
+        columns={clientColumns}
+        rows={clientList}
+        getKey={(c) => c.phone} // use a unique field your IClient really has
+      />
+    ),
+  };
 
   return (
     <>
@@ -154,37 +191,13 @@ export const Admin = () => {
           </AppModal>
 
           <div className="mainScreenSection mt-4">
-            <div>Recently added staff</div>
-            <Table hover className="mt-3">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>First Name</th>
-                  <th>Last Name</th>
-                  <th>Username</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Mark</td>
-                  <td>Otto</td>
-                  <td>@mdo</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>Jacob</td>
-                  <td>Thornton</td>
-                  <td>@fat</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>Larry the Bird</td>
-                  <td>Larry the Bird</td>
-                  <td>@twitter</td>
-                </tr>
-              </tbody>
-            </Table>
+            <div className="d-flex gap-2 mb-3">
+              <Button onClick={() => setShowTable("staff")}>Staff</Button>
+              <Button onClick={() => setShowTable("client")}>Clients</Button>
+            </div>
+
+            {/* key resets DataTable to page 1 when you switch tables */}
+            <div key={showTable}>{tables[showTable]}</div>
           </div>
         </div>
       </div>
