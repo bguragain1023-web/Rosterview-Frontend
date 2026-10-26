@@ -8,29 +8,42 @@ import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
 import { AddClientForm } from "../components/forms/AddClientForm";
 import { CreateTeamForm } from "../components/forms/CreateTeamForm";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { DataTable, type Column } from "../components/custom/DataTable";
-import type { IClient, IUser } from "../helper/axios";
+import {
+  getAllClients,
+  getAllUsers,
+  type IClient,
+  type IUser,
+} from "../helper/axios";
 import { Button } from "react-bootstrap";
 
 type TableName = "staff" | "client" | "team";
 
 const staffColumns: Column<IUser>[] = [
-  { header: "Name", render: (u) => u.name },
+  {
+    header: "Name",
+    render: (u) => u.name,
+  },
   { header: "Email", render: (u) => u.email },
+  { header: "Phone", render: (u) => u.phone },
   { header: "Role", render: (u) => u.role },
   { header: "Status", render: (u) => u.status },
 ];
 
 const clientColumns: Column<IClient>[] = [
   { header: "Name", render: (c) => c.name },
+  { header: "Email", render: (c) => c.email },
   { header: "Phone", render: (c) => c.phone },
+  { header: "Address", render: (c) => c.address },
+  { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
 ];
 
 export const Admin = () => {
   const [showTable, setShowTable] = useState<TableName>("staff");
   const [staffList, setStaffList] = useState<IUser[]>([]);
   const [clientList, setClientList] = useState<IClient[]>([]);
+  const [loadError, setLoadError] = useState("");
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
 
@@ -63,10 +76,42 @@ export const Admin = () => {
       <DataTable
         columns={clientColumns}
         rows={clientList}
+        getKey={(c) => c.phone}
+      />
+    ),
+
+    team: (
+      <DataTable
+        columns={clientColumns}
+        rows={clientList}
         getKey={(c) => c.phone} // use a unique field your IClient really has
       />
     ),
   };
+
+  useEffect(() => {
+    const loadUser = async () => {
+      const res = await getAllUsers();
+      if (res.status === "success") {
+        setStaffList(res.allUsers);
+        setLoadError("");
+      } else {
+        setLoadError(res.message);
+      }
+
+      const clientRes = await getAllClients();
+
+      if (clientRes.status === "success") {
+        setClientList(clientRes.clients);
+        setLoadError("");
+      } else {
+        setLoadError(res.message);
+      }
+    };
+    loadUser();
+  }, []);
+
+  console.log(clientList);
 
   return (
     <>

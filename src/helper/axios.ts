@@ -66,6 +66,12 @@ export interface AddTeamResponse {
   team: ITeam;
 }
 
+export interface GetAllUsersResponse {
+  status: "success";
+  message: string;
+  allUsers: IUser[];
+}
+
 export interface ProcessorPayload {
   method: string;
   url: string;
@@ -206,10 +212,30 @@ export const addNewTeam = async (
   return apiProcessor(obj);
 };
 
-export const getAllUsers = async () => {
+export const getAllUsers = async (): Promise<
+  GetAllUsersResponse | ApiError
+> => {
   const obj = {
     method: "get",
-    url: baseURL + "users/readuser",
+    url: baseURL + "/users/readuser",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
+};
+
+export interface GetAllClientsResponse {
+  status: "success";
+  message: string;
+  clients: IClient[];
+}
+export const getAllClients = async (): Promise<
+  GetAllClientsResponse | ApiError
+> => {
+  const obj = {
+    method: "get",
+    url: baseURL + "/clients/",
     headers: {
       Authorization: `Bearer ${getAccessJWT()}`,
     },
