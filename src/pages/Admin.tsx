@@ -12,8 +12,10 @@ import { useEffect, useState, type ReactNode } from "react";
 import { DataTable, type Column } from "../components/custom/DataTable";
 import {
   getAllClients,
+  getAllTeams,
   getAllUsers,
   type IClient,
+  type ITeam,
   type IUser,
 } from "../helper/axios";
 import { Button } from "react-bootstrap";
@@ -39,10 +41,17 @@ const clientColumns: Column<IClient>[] = [
   { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
 ];
 
+const teamColumns: Column<ITeam>[] = [
+  { header: "Name", render: (t) => t.name },
+  { header: "Team Leader", render: (t) => t.teamLeaderId },
+  { header: "Description", render: (t) => t.description },
+];
+
 export const Admin = () => {
   const [showTable, setShowTable] = useState<TableName>("staff");
   const [staffList, setStaffList] = useState<IUser[]>([]);
   const [clientList, setClientList] = useState<IClient[]>([]);
+  const [teamList, setTeamList] = useState<ITeam[]>([]);
   const [loadError, setLoadError] = useState("");
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
@@ -82,9 +91,9 @@ export const Admin = () => {
 
     team: (
       <DataTable
-        columns={clientColumns}
-        rows={clientList}
-        getKey={(c) => c.phone} // use a unique field your IClient really has
+        columns={teamColumns}
+        rows={teamList}
+        getKey={(c) => c.name} // use a unique field your IClient really has
       />
     ),
   };
@@ -107,11 +116,19 @@ export const Admin = () => {
       } else {
         setLoadError(res.message);
       }
+
+      const teamRes = await getAllTeams();
+      if (teamRes.status === "success") {
+        setTeamList(teamRes.teams);
+        setLoadError("");
+      } else {
+        setLoadError(res.message);
+      }
     };
     loadUser();
   }, []);
 
-  console.log(clientList);
+  console.log("TEAMLIST !!!!!!!!!&&&***** ", teamList);
 
   return (
     <>
@@ -239,6 +256,7 @@ export const Admin = () => {
             <div className="d-flex gap-2 mb-3">
               <Button onClick={() => setShowTable("staff")}>Staff</Button>
               <Button onClick={() => setShowTable("client")}>Clients</Button>
+              <Button onClick={() => setShowTable("team")}>Teams</Button>
             </div>
 
             {/* key resets DataTable to page 1 when you switch tables */}

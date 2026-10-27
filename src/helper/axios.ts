@@ -248,7 +248,7 @@ export interface GetAllTeamResponse {
   message: string;
   teams: ITeam[];
 }
-export const getAllTeams = async () => {
+export const getAllTeams = async (): Promise<GetAllTeamResponse | ApiError> => {
   const obj = {
     method: "get",
     url: baseURL + "/teams/getteams",
