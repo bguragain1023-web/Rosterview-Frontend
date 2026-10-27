@@ -155,7 +155,7 @@ export const Admin = () => {
               <div>
                 <div className="total"> Total Staff</div>
                 <hr />
-                <span>20</span>
+                <span>{staffList.length}</span>
               </div>
             </div>
 
@@ -177,7 +177,7 @@ export const Admin = () => {
               <div>
                 <div className="total"> Total Clients</div>
                 <hr />
-                <span>20</span>
+                <span> {clientList.length} </span>
               </div>
             </div>
 
@@ -243,6 +243,10 @@ export const Admin = () => {
 
             {/* key resets DataTable to page 1 when you switch tables */}
             <div key={showTable}>{tables[showTable]}</div>
+          </div>
+
+          <div className="mainScreenSection">
+            <div className="subtitle">Staff Management</div>
           </div>
         </div>
       </div>

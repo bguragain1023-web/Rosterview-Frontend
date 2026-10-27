@@ -242,3 +242,19 @@ export const getAllClients = async (): Promise<
   };
   return apiProcessor(obj);
 };
+
+export interface GetAllTeamResponse {
+  status: "success";
+  message: string;
+  teams: ITeam[];
+}
+export const getAllTeams = async () => {
+  const obj = {
+    method: "get",
+    url: baseURL + "/teams/getteams",
+    headers: {
+      Authorization: `Bearer ${getAccessJWT()}`,
+    },
+  };
+  return apiProcessor(obj);
+};
