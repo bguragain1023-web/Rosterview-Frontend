@@ -125,6 +125,7 @@ export const Admin = () => {
         setLoadError(res.message);
       }
     };
+
     loadUser();
   }, []);
 
@@ -183,7 +184,7 @@ export const Admin = () => {
               <div>
                 <div className="total"> Total Team</div>
                 <hr />
-                <span>20</span>
+                <span>{teamList.length}</span>
               </div>
             </div>
 

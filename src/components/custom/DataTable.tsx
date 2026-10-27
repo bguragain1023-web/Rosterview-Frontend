@@ -19,7 +19,7 @@ export const DataTable = <T,>({
   columns,
   rows,
   getKey,
-  pageSize = 5,
+  pageSize = 10,
 }: DataTableProps<T>) => {
   const [page, setPage] = useState(1);
 

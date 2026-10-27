@@ -1,7 +1,7 @@
 import { Button } from "react-bootstrap";
 import Form from "react-bootstrap/Form";
 import useForm from "../../hooks/useForm";
-import type { SubmitEvent } from "react";
+import { useState, type SubmitEvent } from "react";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
 import { CustomInput } from "../custom/CustomInput";
@@ -25,6 +25,9 @@ export const AddStaffForm = () => {
   const { setActiveModal } = useUser();
   const { form, setForm, handleOnChange } =
     useForm<AddStaffPayload>(initialState);
+
+  const [temporaryPassword, setTemporaryPassword] = useState("");
+  const [isCreated, setIsCreated] = useState(false);
 
   const inputFields = [
     {
@@ -69,22 +72,63 @@ export const AddStaffForm = () => {
       pending: "Adding New staff, please Wait!!",
     });
 
-    const { status, message } = await pendingState;
-    toast[status](message);
-    if (status === "success") {
+    const response = await pendingState;
+    toast[response.status](response.message);
+    if (response.status === "success") {
       setForm(initialState);
-      setActiveModal(null);
+      setTemporaryPassword(response.tempPassword);
+      setIsCreated(true);
     }
   };
   return (
-    <Form onSubmit={handleOnSubmit}>
-      {inputFields.map((input) => (
-        <CustomInput key={input.name} {...input} onChange={handleOnChange} />
-      ))}
+    <>
+      {isCreated ? (
+        <div>
+          <h5>Staff member created successfully!</h5>
+          <p>Temporary password:</p>
 
-      <Button variant="primary" type="submit">
-        Submit
-      </Button>
-    </Form>
+          <div className="d-flex gap-2 align-items-center">
+            <code>{temporaryPassword}</code>
+
+            <Button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(temporaryPassword)}
+            >
+              Copy password
+            </Button>
+          </div>
+
+          <p className="mt-3">
+            Please provide this password securely to the staff member. They must
+            change it on their first login.
+          </p>
+
+          <Button
+            type="button"
+            onClick={() => {
+              setTemporaryPassword("");
+              setIsCreated(false);
+              setActiveModal(null);
+            }}
+          >
+            Done
+          </Button>
+        </div>
+      ) : (
+        <Form onSubmit={handleOnSubmit}>
+          {inputFields.map((input) => (
+            <CustomInput
+              key={input.name}
+              {...input}
+              onChange={handleOnChange}
+            />
+          ))}
+
+          <Button variant="primary" type="submit">
+            Submit
+          </Button>
+        </Form>
+      )}
+    </>
   );
 };
