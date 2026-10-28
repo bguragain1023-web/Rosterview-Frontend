@@ -9,7 +9,7 @@ export const Coordinator = () => {
           <div className="sideBarMenu">All Workers Shifts</div>
         </div>
         <div className="mainScreen">
-          <div className="mainScreenSection"></div>
+          <div className="mainScreenSection">hi</div>
           <div className="mainScreenSection"></div>
           <div className="mainScreenSection"></div>
           <div className="mainScreenSection"></div>
