@@ -18,7 +18,7 @@ import {
   type ITeam,
   type IUser,
 } from "../helper/axios";
-import { Button } from "react-bootstrap";
+import { Button, Col, Container, Row } from "react-bootstrap";
 
 type TableName = "staff" | "client" | "team";
 
@@ -133,8 +133,8 @@ export const Admin = () => {
 
   return (
     <>
-      <div className="layoutWrapper d-flex p-3">
-        <div className="sideBar d-flex flex-column gap-3">
+      <div className="layoutWrapper p-3">
+        {/* <div className="sideBar d-flex flex-column gap-3">
           <div className="sideBarMenu">
             {" "}
             <MdOutlineDashboard /> Dashboard
@@ -151,20 +151,21 @@ export const Admin = () => {
             {" "}
             <SlCalender /> All Workers Shifts
           </div>
-        </div>
-        <div className="mainScreen">
-          <div className="mainScreenSection">
-            <div className="pageName d-flex justify-content-between align-items-center p-2">
-              <div className="dashboardName">
-                <div className="title">Admin Dashboard</div>
-                <span className="mutedDate">{today}</span>
-              </div>
-              <div className="profile">
-                <div className="profileName">Welcome {user?.name}</div>
-              </div>
-            </div>
-          </div>
+        </div> */}
 
+        <Container>
+          <Row>
+            <Col className="">
+              {" "}
+              <div className="title">Welcome {user?.name}</div>
+              <span className="mutedDate">{user?.role.toUpperCase()}</span>{" "}
+              <br />
+              <span className="mutedDate">{today}</span>
+            </Col>
+          </Row>
+        </Container>
+
+        <div className="mainScreen">
           <div className="mainScreenSection d-flex gap-2 p-1 mt-3 flex-wrap">
             <div className="staffDetail justify-content-center  d-flex align-items-center gap-3  ">
               <div className="staffDetailIcon">
@@ -206,7 +207,14 @@ export const Admin = () => {
               <div>
                 <div className="total">Coordinators and Leaders</div>
                 <hr />
-                <span>20</span>
+                <span>
+                  {
+                    staffList.filter(
+                      (u) =>
+                        u.role === "coordinator" || u.role === "teamLeader",
+                    ).length
+                  }
+                </span>
               </div>
             </div>
           </div>

@@ -8,11 +8,11 @@ import { PrivateRoutes } from "./components/Private/PrivateRoutes";
 import { Admin } from "./pages/Admin";
 import { Coordinator } from "./pages/Coordinator";
 import { TeamLeader } from "./pages/TeamLeader";
-import { Worker } from "./pages/worker";
 import { ChangePassword } from "./pages/ChangePassword";
 import { useUser } from "./contex/UserContext";
 import { autoLogin } from "./utils/users";
 import { useEffect } from "react";
+import { Worker } from "./pages/Worker";
 
 function App() {
   const { setUser, setIsAuthLoading } = useUser();
