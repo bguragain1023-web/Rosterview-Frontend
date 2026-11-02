@@ -19,6 +19,7 @@ import {
   type IUser,
 } from "../helper/axios";
 import { Button, Col, Container, Row } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 
 type TableName = "staff" | "client" | "team";
 
@@ -30,8 +31,19 @@ export const Admin = () => {
   const [loadError, setLoadError] = useState("");
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
+  const navigate = useNavigate();
 
-  const handleOnView = (id: string) => {};
+  const handleOnView = (id: string) => {
+    const selectedUser = staffList.find((u) => u._id == id);
+
+    if (selectedUser) {
+      navigate(`/admin/staff/${id}`, {
+        state: {
+          user: selectedUser,
+        },
+      });
+    }
+  };
 
   const staffColumns: Column<IUser>[] = [
     {
@@ -55,7 +67,7 @@ export const Admin = () => {
           variant="outline-light"
           onClick={() => handleOnView(u._id)}
         >
-          View/Action
+          View
         </Button>
       ),
     },
@@ -83,7 +95,7 @@ export const Admin = () => {
         <Button
           size="sm"
           variant="outline-light"
-          onClick={() => handleViewTeam(t)}
+          onClick={() => console.log("team", t)}
         >
           View/Action
         </Button>
