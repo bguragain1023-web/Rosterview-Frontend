@@ -22,31 +22,6 @@ import { Button, Col, Container, Row } from "react-bootstrap";
 
 type TableName = "staff" | "client" | "team";
 
-const staffColumns: Column<IUser>[] = [
-  {
-    header: "Name",
-    render: (u) => u.name,
-  },
-  { header: "Email", render: (u) => u.email },
-  { header: "Phone", render: (u) => u.phone },
-  { header: "Role", render: (u) => u.role },
-  { header: "Status", render: (u) => u.status },
-];
-
-const clientColumns: Column<IClient>[] = [
-  { header: "Name", render: (c) => c.name },
-  { header: "Email", render: (c) => c.email },
-  { header: "Phone", render: (c) => c.phone },
-  { header: "Address", render: (c) => c.address },
-  { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
-];
-
-const teamColumns: Column<ITeam>[] = [
-  { header: "Name", render: (t) => t.name },
-  { header: "Team Leader", render: (t) => t.teamLeaderId },
-  { header: "Description", render: (t) => t.description },
-];
-
 export const Admin = () => {
   const [showTable, setShowTable] = useState<TableName>("staff");
   const [staffList, setStaffList] = useState<IUser[]>([]);
@@ -55,6 +30,66 @@ export const Admin = () => {
   const [loadError, setLoadError] = useState("");
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
+
+  const handleOnView = (id: string) => {};
+
+  const staffColumns: Column<IUser>[] = [
+    {
+      header: "Name",
+      render: (u) => u.name,
+    },
+    { header: "Email", render: (u) => u.email },
+    { header: "Phone", render: (u) => u.phone },
+    { header: "Role", render: (u) => u.role },
+    {
+      header: "Team",
+      render: (u) =>
+        teamList.find((t) => t._id === u.teamId)?.name ?? "Unassigned",
+    },
+    { header: "Status", render: (u) => u.status },
+    {
+      header: "Action",
+      render: (u) => (
+        <Button
+          size="sm"
+          variant="outline-light"
+          onClick={() => handleOnView(u._id)}
+        >
+          View/Action
+        </Button>
+      ),
+    },
+  ];
+
+  const clientColumns: Column<IClient>[] = [
+    { header: "Name", render: (c) => c.name },
+    { header: "Email", render: (c) => c.email },
+    { header: "Phone", render: (c) => c.phone },
+    { header: "Address", render: (c) => c.address },
+    { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
+  ];
+
+  const teamColumns: Column<ITeam>[] = [
+    { header: "Name", render: (t) => t.name },
+    {
+      header: "Team Leader",
+      render: (t) =>
+        staffList.find((u) => u._id === t.teamLeaderId)?.name ?? "Unassigned",
+    },
+    { header: "Description", render: (t) => t.description },
+    {
+      header: "Action",
+      render: (t) => (
+        <Button
+          size="sm"
+          variant="outline-light"
+          onClick={() => handleViewTeam(t)}
+        >
+          View/Action
+        </Button>
+      ),
+    },
+  ];
 
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
@@ -128,8 +163,6 @@ export const Admin = () => {
 
     loadUser();
   }, []);
-
-  console.log("TEAMLIST !!!!!!!!!&&&***** ", teamList);
 
   return (
     <>
