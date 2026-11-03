@@ -185,6 +185,167 @@ body {
   border-color: rgba(109, 108, 108, 0.146);
 }
 
+/* Worker page section buttons (same look as admin quick actions) */
+button.quickActionMenu {
+  border: none;
+  color: var(--color-text);
+}
+
+.quickActionMenu.active {
+  background: var(--cyan-hover);
+}
+
+.workerPanel {
+  padding: 16px;
+  background: var(--box-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+/* Worker roster calendar: dark theme for react-calendar */
+.rosterCalendar .react-calendar {
+  width: 100%;
+  max-width: none; /* fill the column */
+  background: var(--box-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  color: var(--color-text);
+  font-family: inherit;
+}
+
+.rosterCalendar .react-calendar__navigation button,
+.rosterCalendar .react-calendar__tile {
+  color: var(--color-text);
+}
+
+.rosterCalendar .react-calendar__month-view__weekdays {
+  color: var(--color-text-muted);
+}
+
+/* Bigger month header */
+.rosterCalendar .react-calendar__navigation {
+  height: 52px;
+  margin-bottom: 0.5em;
+}
+
+.rosterCalendar .react-calendar__navigation__label {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+/* Taller day boxes: date number top-left, dots along the bottom */
+.rosterCalendar .react-calendar__month-view__days__day {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: space-between;
+  min-height: 80px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+}
+
+.rosterCalendar .react-calendar__month-view__weekdays abbr {
+  text-decoration: none;
+}
+
+.rosterCalendar .react-calendar__navigation button:enabled:hover,
+.rosterCalendar .react-calendar__navigation button:enabled:focus,
+.rosterCalendar .react-calendar__tile:enabled:hover,
+.rosterCalendar .react-calendar__tile:enabled:focus {
+  background: var(--cyan-hover);
+}
+
+.rosterCalendar .react-calendar__tile--now {
+  background: var(--color-button);
+}
+
+.rosterCalendar .react-calendar__tile--active,
+.rosterCalendar .react-calendar__tile--active:enabled:hover,
+.rosterCalendar .react-calendar__tile--active:enabled:focus {
+  background: var(--bs-primary);
+  color: #000;
+}
+
+/* weekends: keep readable instead of the default red */
+.rosterCalendar .react-calendar__month-view__days__day--weekend {
+  color: var(--color-text);
+}
+
+.calDots {
+  display: flex;
+  justify-content: flex-start;
+  gap: 4px;
+  height: 10px;
+}
+
+.calDot {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+}
+
+.calDot.shift {
+  background: #22c55e;
+}
+
+.calDot.unavailable {
+  background: #ef4444;
+}
+
+/* "black" dot, with a light ring so it's visible on the dark background */
+.calDot.free {
+  background: #000;
+  box-shadow: 0 0 0 1px var(--color-text-muted);
+}
+
+.calLegend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 10px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.calLegend > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Sits in the right column and stays in view while scrolling */
+.calDayDetails {
+  position: sticky;
+  top: 16px;
+  padding: 14px 16px;
+  background: var(--box-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+}
+
+.calDayReason {
+  color: #ef4444;
+  font-size: 14px;
+}
+
+.calShift {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  padding: 8px 0;
+  border-top: 1px solid var(--color-border);
+}
+
+.calShift .shiftStatus {
+  grid-row: 1 / span 2;
+  grid-column: 2;
+}
+
+.calShift.cancelledRow {
+  opacity: 0.5;
+}
+
 /* Dashboard "Needs attention" cards */
 .attentionCard {
   display: flex;

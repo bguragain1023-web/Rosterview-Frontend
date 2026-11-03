@@ -455,6 +455,9 @@ export interface IShift {
   cancelledAt?: string;
   cancelledBy?: string;
   cancelReason?: string;
+  // Added by GET /shifts and /shifts/:id; null if the client/worker was deleted
+  clientName?: string | null;
+  workerName?: string | null;
 }
 
 export interface CreateShiftPayload {
@@ -630,6 +633,34 @@ export const reviewSwapRequest = async (
     method: "patch",
     url: `${baseURL}/swapShift/${id}/review`,
     data: comment ? { action, comment } : { action },
+    headers: authHeader(),
+  });
+};
+
+// ---------- Availability ----------
+
+export interface IAvailability {
+  _id: string;
+  workerId: string;
+  type: "recurring" | "specific";
+  dayOfWeek?: number; // 0 = Sunday … 6 = Saturday (recurring)
+  date?: string; // ISO, UTC midnight (specific)
+  status: "available" | "unavailable";
+}
+
+export interface GetAvailabilityResponse {
+  status: "success";
+  message: string;
+  availability: IAvailability[];
+}
+
+// A worker gets only their own availability.
+export const getMyAvailability = async (): Promise<
+  GetAvailabilityResponse | ApiError
+> => {
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/availability/getallavailability`,
     headers: authHeader(),
   });
 };
