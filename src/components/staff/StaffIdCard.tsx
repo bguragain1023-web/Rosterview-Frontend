@@ -1,31 +1,5 @@
-import type { IUserDetail, userRole } from "../../helper/axios";
-
-const roleLabels: Record<userRole, string> = {
-  admin: "Admin",
-  coordinator: "Coordinator",
-  teamLeader: "Team Leader",
-  worker: "Worker",
-};
-
-const roleLabel = (role: userRole | null) => (role ? roleLabels[role] : "No role");
-
-const formatDate = (value?: string) =>
-  value
-    ? new Date(value).toLocaleDateString("en-AU", {
-        day: "numeric",
-        month: "short",
-        year: "numeric",
-      })
-    : "—";
-
-const getInitials = (name: string) =>
-  name
-    .split(" ")
-    .filter(Boolean)
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
+import type { IUserDetail } from "../../helper/axios";
+import { formatDate, getInitials, roleLabel } from "../../utils/format";
 
 export const StaffIdCard = ({ staff }: { staff: IUserDetail }) => {
   const staffNo = staff._id.slice(-6).toUpperCase();

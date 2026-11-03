@@ -346,6 +346,55 @@ body {
   word-break: break-word;
 }
 
+/* Team card members list */
+.teamMembersTitle {
+  margin: 18px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+}
+
+.teamMembers {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.teamMembers li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.teamMembers li a {
+  flex: 1;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+.teamMembers li a:hover {
+  text-decoration: underline;
+}
+
+/* Manage members panel */
+.manageMembers li {
+  padding: 6px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.manageMembers .memberName {
+  flex: 1;
+}
+
+.manageMembers .memberAction {
+  min-width: 140px;
+  text-align: right;
+}
+
 /* Permission checkboxes */
 .permissionGroup {
   margin-bottom: 18px;

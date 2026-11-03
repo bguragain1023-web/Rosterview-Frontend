@@ -163,9 +163,9 @@ export const Admin = () => {
         <Button
           size="sm"
           variant="outline-light"
-          onClick={() => console.log("team", t)}
+          onClick={() => navigate(`/admin/teams/${t._id}`)}
         >
-          View/Action
+          View
         </Button>
       ),
     },
@@ -212,7 +212,7 @@ export const Admin = () => {
       <DataTable
         columns={teamColumns}
         rows={teamList}
-        getKey={(c) => c.name} // use a unique field your IClient really has
+        getKey={(t) => t._id}
       />
     ),
   };

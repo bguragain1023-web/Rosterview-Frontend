@@ -261,6 +261,83 @@ export const getAllTeams = async (): Promise<GetAllTeamResponse | ApiError> => {
   return apiProcessor(obj);
 };
 
+// ---------- Team detail ----------
+
+export interface ITeamMember {
+  _id: string;
+  name: string;
+  role: userRole | null;
+  status: "active" | "inactive";
+}
+
+// A single team, as returned by GET /teams/:teamId
+export interface ITeamDetail extends ITeam {
+  teamLeader: { _id: string; name: string } | null;
+  members: ITeamMember[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Only send fields that changed. teamLeaderId null = remove the leader.
+export interface UpdateTeamPayload {
+  name?: string;
+  description?: string;
+  isActive?: boolean;
+  teamLeaderId?: string | null;
+}
+
+export interface GetTeamDetailResponse {
+  status: "success";
+  message: string;
+  team: ITeamDetail;
+}
+
+export const getTeamDetail = async (
+  id: string,
+): Promise<GetTeamDetailResponse | ApiError> => {
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/teams/${id}`,
+    headers: authHeader(),
+  });
+};
+
+export const updateTeam = async (
+  id: string,
+  data: UpdateTeamPayload,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/teams/${id}`,
+    data,
+    headers: authHeader(),
+  });
+};
+
+// Add a worker to a team (existing assign endpoint).
+export const addTeamMember = async (
+  teamId: string,
+  userId: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/teams/assignworkerteam`,
+    data: { teamId, userId },
+    headers: authHeader(),
+  });
+};
+
+export const removeTeamMember = async (
+  teamId: string,
+  userId: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "delete",
+    url: `${baseURL}/teams/${teamId}/members/${userId}`,
+    headers: authHeader(),
+  });
+};
+
 // ---------- Staff detail ----------
 
 // A single user, as returned by GET /users/:id

@@ -15,6 +15,7 @@ import { useEffect } from "react";
 import { Worker } from "./pages/Worker";
 import { StaffDetailPage } from "./pages/StaffDetailPage";
 import { AdminShifts } from "./pages/AdminShifts";
+import { TeamDetailPage } from "./pages/TeamDetailPage";
 
 function App() {
   const { setUser, setIsAuthLoading } = useUser();
@@ -56,6 +57,7 @@ function App() {
             <Route path="admin" element={<Admin />} />
             <Route path="admin/staff/:id" element={<StaffDetailPage />} />
             <Route path="admin/shifts" element={<AdminShifts />} />
+            <Route path="admin/teams/:id" element={<TeamDetailPage />} />
           </Route>
 
           <Route element={<PrivateRoutes allowedRoles={["coordinator"]} />}>
