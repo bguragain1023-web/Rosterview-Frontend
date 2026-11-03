@@ -665,6 +665,43 @@ export const getMyAvailability = async (): Promise<
   });
 };
 
+export type AddAvailabilityPayload =
+  | { type: "recurring"; dayOfWeek: number; status: IAvailability["status"] }
+  | { type: "specific"; date: string; status: IAvailability["status"] }; // date "YYYY-MM-DD"
+
+export const addAvailability = async (
+  data: AddAvailabilityPayload,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "post",
+    url: `${baseURL}/availability/addavailability`,
+    data,
+    headers: authHeader(),
+  });
+};
+
+export const updateAvailabilityStatus = async (
+  id: string,
+  status: IAvailability["status"],
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/availability/${id}`,
+    data: { status },
+    headers: authHeader(),
+  });
+};
+
+export const deleteAvailability = async (
+  id: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "delete",
+    url: `${baseURL}/availability/${id}`,
+    headers: authHeader(),
+  });
+};
+
 // ---------- Leave requests ----------
 
 export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
