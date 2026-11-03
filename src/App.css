@@ -310,6 +310,72 @@ body {
   font-size: 11px;
 }
 
+/* Shift status pills */
+.shiftStatus {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.shiftStatus.unassigned {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+}
+
+.shiftStatus.assigned {
+  background: rgba(34, 211, 238, 0.15);
+  color: #22d3ee;
+}
+
+.shiftStatus.completed {
+  background: rgba(182, 255, 46, 0.15);
+  color: var(--bs-primary);
+}
+
+.shiftStatus.cancelled {
+  background: #2a2f3a;
+  color: #aab3c0;
+}
+
+/* Swap request status pills */
+.swapStatus {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.swapStatus.workerAccepted {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+}
+
+.swapStatus.pending {
+  background: rgba(34, 211, 238, 0.15);
+  color: #22d3ee;
+}
+
+.swapStatus.accepted {
+  background: rgba(182, 255, 46, 0.15);
+  color: var(--bs-primary);
+}
+
+.swapStatus.rejected,
+.swapStatus.cancelled {
+  background: #2a2f3a;
+  color: #aab3c0;
+}
+
+.cancelledRow td {
+  opacity: 0.5;
+}
+
+/* keep the actions menu readable on dimmed rows */
+.cancelledRow td:last-child {
+  opacity: 1;
+}
+
 /* Edit form / permissions panel shown in place of the card */
 .staffPanel {
   max-width: 560px;

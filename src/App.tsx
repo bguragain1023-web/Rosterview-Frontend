@@ -14,6 +14,7 @@ import { autoLogin } from "./utils/users";
 import { useEffect } from "react";
 import { Worker } from "./pages/Worker";
 import { StaffDetailPage } from "./pages/StaffDetailPage";
+import { AdminShifts } from "./pages/AdminShifts";
 
 function App() {
   const { setUser, setIsAuthLoading } = useUser();
@@ -54,6 +55,7 @@ function App() {
           <Route element={<PrivateRoutes allowedRoles={["admin"]} />}>
             <Route path="admin" element={<Admin />} />
             <Route path="admin/staff/:id" element={<StaffDetailPage />} />
+            <Route path="admin/shifts" element={<AdminShifts />} />
           </Route>
 
           <Route element={<PrivateRoutes allowedRoles={["coordinator"]} />}>

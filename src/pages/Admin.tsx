@@ -8,7 +8,7 @@ import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
 import { AddClientForm } from "../components/forms/AddClientForm";
 import { CreateTeamForm } from "../components/forms/CreateTeamForm";
-import { CreateShiftForm } from "../components/forms/CreateShiftForm";
+import { ShiftForm } from "../components/forms/ShiftForm";
 import { useEffect, useState, type ReactNode } from "react";
 import { DataTable, type Column } from "../components/custom/DataTable";
 import {
@@ -98,7 +98,7 @@ export const Admin = () => {
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
     updateStaff: { title: "Update Staff Detail", body: <>Comming soon</> },
-    createShift: { title: "Create Shift", body: <CreateShiftForm /> },
+    createShift: { title: "Create Shift", body: <ShiftForm /> },
     createTeam: {
       title: "Create Team",
       body: <CreateTeamForm />,
@@ -280,6 +280,12 @@ export const Admin = () => {
                 onClick={() => setActiveModal("createShift")}
               >
                 <IoMdAdd /> Create Shift
+              </div>
+              <div
+                className="quickActionMenu"
+                onClick={() => navigate("/admin/shifts")}
+              >
+                <SlCalender /> View Roster
               </div>
               <div
                 className="quickActionMenu"

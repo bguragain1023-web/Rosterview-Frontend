@@ -12,6 +12,7 @@ interface DataTableProps<T> {
   columns: Column<T>[];
   rows: T[];
   getKey: (row: T) => string; // a unique id for each row
+  getRowClassName?: (row: T) => string | undefined; // e.g. dim cancelled rows
   pageSize?: number;
 }
 
@@ -19,6 +20,7 @@ export const DataTable = <T,>({
   columns,
   rows,
   getKey,
+  getRowClassName,
   pageSize = 10,
 }: DataTableProps<T>) => {
   const [page, setPage] = useState(1);
@@ -41,7 +43,7 @@ export const DataTable = <T,>({
         </thead>
         <tbody>
           {pageRows.map((row, i) => (
-            <tr key={getKey(row)}>
+            <tr key={getKey(row)} className={getRowClassName?.(row)}>
               <td>{start + i + 1}</td>
               {columns.map((col) => (
                 <td key={col.header}>{col.render(row)}</td>

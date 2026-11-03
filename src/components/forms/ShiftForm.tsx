@@ -12,10 +12,14 @@ import {
   createShift,
   getAllClients,
   getAllUsers,
+  updateShift,
   type CreateShiftPayload,
   type IClient,
+  type IShift,
   type IUser,
+  type UpdateShiftPayload,
 } from "../../helper/axios";
+import { toDateInputValue } from "../../utils/dates";
 
 interface ShiftFormState {
   clientId: string;
@@ -28,7 +32,7 @@ interface ShiftFormState {
   notes: string;
 }
 
-const initialState: ShiftFormState = {
+const emptyState: ShiftFormState = {
   clientId: "",
   workerId: "",
   location: "",
@@ -39,13 +43,19 @@ const initialState: ShiftFormState = {
   notes: "",
 };
 
-// The backend accepts shifts from today up to 60 days ahead.
-const MAX_DAYS_AHEAD = 60;
+const toFormState = (shift: IShift): ShiftFormState => ({
+  clientId: shift.clientId,
+  workerId: shift.workerId ?? "",
+  location: shift.location,
+  date: shift.date.slice(0, 10), // ISO UTC midnight -> "YYYY-MM-DD"
+  startTime: shift.startTime,
+  endTime: shift.endTime,
+  breakMinutes: String(shift.breakMinutes),
+  notes: shift.notes ?? "",
+});
 
-const toDateInputValue = (date: Date) => {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
-};
+// The backend accepts shift dates from today up to 60 days ahead.
+const MAX_DAYS_AHEAD = 60;
 
 const toMinutes = (time: string) => {
   const [h = 0, m = 0] = time.split(":").map(Number);
@@ -61,12 +71,32 @@ const getShiftLength = (startTime: string, endTime: string) => {
   return { minutes: end - start, isOvernight };
 };
 
-export const CreateShiftForm = () => {
+const weeklyHoursMessage = (
+  prefix: string,
+  weeklyHours: number,
+  overtimeHours: number,
+) => {
+  const weekly = Number(weeklyHours.toFixed(2));
+  const overtime = Number(overtimeHours.toFixed(2));
+  return (
+    `${prefix} · ${weekly} h this week` +
+    (overtime > 0 ? ` (${overtime} h overtime)` : "")
+  );
+};
+
+interface ShiftFormProps {
+  shift?: IShift; // given = edit mode
+  onSaved?: () => void; // e.g. reload the roster / close the edit modal
+}
+
+export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
+  const isEdit = Boolean(shift);
   const { setActiveModal } = useUser();
-  const { form, setForm, handleOnChange } =
-    useForm<ShiftFormState>(initialState);
-  const [clients, setClients] = useState<IClient[]>([]);
-  const [workers, setWorkers] = useState<IUser[]>([]);
+  const { form, setForm, handleOnChange } = useForm<ShiftFormState>(
+    shift ? toFormState(shift) : emptyState,
+  );
+  const [allClients, setAllClients] = useState<IClient[]>([]);
+  const [allUsers, setAllUsers] = useState<IUser[]>([]);
   const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
@@ -75,19 +105,13 @@ export const CreateShiftForm = () => {
     Promise.all([getAllClients(), getAllUsers()]).then(
       ([clientRes, userRes]) => {
         if (ignore) return;
-
         if (clientRes.status === "success") {
-          setClients(clientRes.clients.filter((c) => c.isActive));
+          setAllClients(clientRes.clients);
         } else {
           toast.error(clientRes.message);
         }
-
         if (userRes.status === "success") {
-          setWorkers(
-            userRes.allUsers.filter(
-              (u) => u.role === "worker" && u.status === "active",
-            ),
-          );
+          setAllUsers(userRes.allUsers);
         } else {
           toast.error(userRes.message);
         }
@@ -99,9 +123,24 @@ export const CreateShiftForm = () => {
     };
   }, []);
 
-  const today = new Date();
+  // Active clients/workers, plus the shift's current ones even if inactive,
+  // so editing doesn't silently switch them.
+  const clients = allClients.filter(
+    (c) => c.isActive || c._id === shift?.clientId,
+  );
+  const workers = allUsers.filter(
+    (u) =>
+      u.role === "worker" &&
+      (u.status === "active" || u._id === shift?.workerId),
+  );
+
+  const todayValue = toDateInputValue(new Date());
   const maxDate = new Date();
-  maxDate.setDate(today.getDate() + MAX_DAYS_AHEAD);
+  maxDate.setDate(maxDate.getDate() + MAX_DAYS_AHEAD);
+  const originalDate = shift?.date.slice(0, 10);
+  // A past shift keeps its own date as the minimum, so it can still be saved.
+  const minDate =
+    originalDate && originalDate < todayValue ? originalDate : todayValue;
 
   const selectedClient = clients.find((c) => c._id === form.clientId);
 
@@ -127,18 +166,7 @@ export const CreateShiftForm = () => {
     ? Number(((shiftLength.minutes - breakMinutes) / 60).toFixed(2))
     : null;
 
-  const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
-    e.preventDefault();
-
-    if (form.startTime === form.endTime) {
-      toast.error("Start and end time can't be the same");
-      return;
-    }
-    if (shiftLength && breakMinutes >= shiftLength.minutes) {
-      toast.error("Break must be shorter than the shift");
-      return;
-    }
-
+  const handleCreate = async () => {
     const payload: CreateShiftPayload = {
       clientId: form.clientId,
       location: form.location.trim(),
@@ -159,19 +187,89 @@ export const CreateShiftForm = () => {
       return;
     }
 
-    if (res.shift.workerId) {
-      const weekly = Number(res.weeklyHours.toFixed(2));
-      const overtime = Number(res.overtimeHours.toFixed(2));
-      toast.success(
-        `Shift created · ${weekly} h this week` +
-          (overtime > 0 ? ` (${overtime} h overtime)` : ""),
-      );
-    } else {
-      toast.success("Unassigned shift created");
+    toast.success(
+      res.shift.workerId
+        ? weeklyHoursMessage(
+            "Shift created",
+            res.weeklyHours,
+            res.overtimeHours,
+          )
+        : "Unassigned shift created",
+    );
+
+    setForm(emptyState);
+    setActiveModal(null);
+    onSaved?.();
+  };
+
+  const handleUpdate = async (original: IShift) => {
+    const before = toFormState(original);
+    const changes: UpdateShiftPayload = {};
+
+    if (form.clientId !== before.clientId) changes.clientId = form.clientId;
+    if (form.workerId !== before.workerId) {
+      changes.workerId = form.workerId || null; // "" -> unassign
+    }
+    if (form.location.trim() !== before.location) {
+      changes.location = form.location.trim();
+    }
+    if (form.date !== before.date) {
+      if (form.date < todayValue) {
+        toast.error("A new date can't be in the past");
+        return;
+      }
+      changes.date = form.date;
+    }
+    if (form.startTime !== before.startTime) changes.startTime = form.startTime;
+    if (form.endTime !== before.endTime) changes.endTime = form.endTime;
+    if (breakMinutes !== original.breakMinutes) {
+      changes.breakMinutes = breakMinutes;
+    }
+    if (form.notes.trim() !== before.notes) changes.notes = form.notes.trim();
+
+    if (Object.keys(changes).length === 0) {
+      toast.info("No changes to save");
+      return;
     }
 
-    setForm(initialState);
-    setActiveModal(null);
+    setIsSaving(true);
+    const res = await updateShift(original._id, changes);
+    setIsSaving(false);
+
+    if (res.status !== "success") {
+      toast.error(res.message);
+      return;
+    }
+
+    toast.success(
+      form.workerId
+        ? weeklyHoursMessage(
+            "Shift updated",
+            res.weeklyHours,
+            res.overtimeHours,
+          )
+        : "Shift updated",
+    );
+    onSaved?.();
+  };
+
+  const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    if (form.startTime === form.endTime) {
+      toast.error("Start and end time can't be the same");
+      return;
+    }
+    if (shiftLength && breakMinutes >= shiftLength.minutes) {
+      toast.error("Break must be shorter than the shift");
+      return;
+    }
+
+    if (shift) {
+      await handleUpdate(shift);
+    } else {
+      await handleCreate();
+    }
   };
 
   return (
@@ -188,6 +286,7 @@ export const CreateShiftForm = () => {
           {clients.map((c) => (
             <option key={c._id} value={c._id}>
               {c.name}
+              {!c.isActive && " (inactive)"}
             </option>
           ))}
         </Form.Select>
@@ -216,6 +315,7 @@ export const CreateShiftForm = () => {
           {workers.map((w) => (
             <option key={w._id} value={w._id}>
               {w.name}
+              {w.status !== "active" && " (inactive)"}
             </option>
           ))}
         </Form.Select>
@@ -230,7 +330,7 @@ export const CreateShiftForm = () => {
               name="date"
               value={form.date}
               onChange={handleOnChange}
-              min={toDateInputValue(today)}
+              min={minDate}
               max={toDateInputValue(maxDate)}
               required
             />
@@ -298,7 +398,13 @@ export const CreateShiftForm = () => {
       </Form.Group>
 
       <Button type="submit" disabled={isSaving}>
-        {isSaving ? "Creating..." : "Create shift"}
+        {isSaving
+          ? isEdit
+            ? "Saving..."
+            : "Creating..."
+          : isEdit
+            ? "Save changes"
+            : "Create shift"}
       </Button>
     </Form>
   );

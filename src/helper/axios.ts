@@ -374,6 +374,10 @@ export interface IShift {
   createdBy: string;
   createdAt: string;
   updatedAt: string;
+  // Only set while status is "cancelled"
+  cancelledAt?: string;
+  cancelledBy?: string;
+  cancelReason?: string;
 }
 
 export interface CreateShiftPayload {
@@ -395,6 +399,163 @@ export interface CreateShiftResponse {
   normalHours: number;
   overtimeHours: number;
 }
+
+export interface GetShiftsResponse {
+  status: "success";
+  message: string;
+  allShifts: IShift[];
+}
+
+// from/to are "YYYY-MM-DD", both inclusive and optional.
+export const getShifts = async (range: {
+  from?: string;
+  to?: string;
+} = {}): Promise<GetShiftsResponse | ApiError> => {
+  const query = new URLSearchParams();
+  if (range.from) query.set("from", range.from);
+  if (range.to) query.set("to", range.to);
+  const qs = query.toString();
+
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/shifts${qs ? `?${qs}` : ""}`,
+    headers: authHeader(),
+  });
+};
+
+// Only send fields that changed. workerId null = unassign.
+export type UpdateShiftPayload = Partial<
+  Omit<CreateShiftPayload, "workerId">
+> & {
+  workerId?: string | null;
+};
+
+export interface UpdateShiftResponse {
+  status: "success";
+  message: string;
+  weeklyHours: number;
+  normalHours: number;
+  overtimeHours: number;
+}
+
+export const updateShift = async (
+  id: string,
+  data: UpdateShiftPayload,
+): Promise<UpdateShiftResponse | ApiError> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/shifts/${id}`,
+    data,
+    headers: authHeader(),
+  });
+};
+
+export const cancelShift = async (
+  id: string,
+  reason?: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/shifts/${id}/cancel`,
+    data: reason ? { reason } : {},
+    headers: authHeader(),
+  });
+};
+
+// unassign: reinstate without the worker (e.g. they're no longer free)
+export const reinstateShift = async (
+  id: string,
+  unassign = false,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/shifts/${id}/reinstate`,
+    data: { unassign },
+    headers: authHeader(),
+  });
+};
+
+export const deleteShifts = async (
+  shiftIds: string[],
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "delete",
+    url: `${baseURL}/shifts`,
+    data: { shiftIds },
+    headers: authHeader(),
+  });
+};
+
+// ---------- Shift swaps ----------
+
+export type SwapStatus =
+  | "pending" // waiting for the other worker
+  | "workerAccepted" // waiting for a manager
+  | "accepted"
+  | "rejected"
+  | "cancelled";
+
+// Shift details as filled in on a swap request
+export interface SwapShiftInfo {
+  _id: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  location: string;
+  clientId: string;
+  status: ShiftStatus;
+}
+
+export interface PersonRef {
+  _id: string;
+  name: string;
+}
+
+export interface ISwapRequest {
+  _id: string;
+  status: SwapStatus;
+  // null if the shift or user has since been deleted
+  requestedShiftId: SwapShiftInfo | null;
+  targetedShiftId: SwapShiftInfo | null;
+  requestedBy: PersonRef | null;
+  requestedTo: PersonRef | null;
+  reviewedBy?: PersonRef | null;
+  reviewedAt?: string;
+  reviewComment?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetSwapRequestsResponse {
+  status: "success";
+  message: string;
+  swapRequests: ISwapRequest[];
+}
+
+export const getSwapRequests = async (
+  statuses?: SwapStatus[],
+): Promise<GetSwapRequestsResponse | ApiError> => {
+  const qs = statuses?.length ? `?status=${statuses.join(",")}` : "";
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/swapShift${qs}`,
+    headers: authHeader(),
+  });
+};
+
+// Manager decision. comment is optional (max 500 chars).
+export const reviewSwapRequest = async (
+  id: string,
+  action: "accept" | "reject",
+  comment?: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/swapShift/${id}/review`,
+    data: comment ? { action, comment } : { action },
+    headers: authHeader(),
+  });
+};
 
 export const createShift = async (
   data: CreateShiftPayload,
