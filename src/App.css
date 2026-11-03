@@ -185,6 +185,60 @@ body {
   border-color: rgba(109, 108, 108, 0.146);
 }
 
+/* Dashboard "Needs attention" cards */
+.attentionCard {
+  display: flex;
+  flex: 1 1 230px;
+  align-items: center;
+  gap: 14px;
+  padding: 18px 20px;
+  background: var(--box-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  color: var(--color-text);
+  text-align: left;
+}
+
+.attentionCard:hover,
+.attentionCard:focus-visible {
+  background: var(--cyan-hover);
+}
+
+.attentionCount {
+  font-size: 1.8rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.attentionLabel {
+  flex: 1;
+  font-size: 14px;
+}
+
+.attentionArrow {
+  color: var(--color-text-muted);
+}
+
+.attentionCard.orange {
+  border-color: rgba(251, 146, 60, 0.5);
+}
+
+.attentionCard.orange .attentionCount {
+  color: #fb923c;
+}
+
+.attentionCard.cyan {
+  border-color: rgba(34, 211, 238, 0.5);
+}
+
+.attentionCard.cyan .attentionCount {
+  color: #22d3ee;
+}
+
+.attentionCard.clear .attentionCount {
+  color: var(--color-text-muted);
+}
+
 /* Staff detail page */
 
 .backLink {
@@ -363,6 +417,30 @@ body {
 
 .swapStatus.rejected,
 .swapStatus.cancelled {
+  background: #2a2f3a;
+  color: #aab3c0;
+}
+
+/* Leave request status pills */
+.leaveStatus {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  text-transform: capitalize;
+}
+
+.leaveStatus.pending {
+  background: rgba(251, 146, 60, 0.15);
+  color: #fb923c;
+}
+
+.leaveStatus.approved {
+  background: rgba(182, 255, 46, 0.15);
+  color: var(--bs-primary);
+}
+
+.leaveStatus.rejected,
+.leaveStatus.cancelled {
   background: #2a2f3a;
   color: #aab3c0;
 }

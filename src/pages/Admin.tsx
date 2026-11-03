@@ -15,14 +15,25 @@ import {
   getAllClients,
   getAllTeams,
   getAllUsers,
+  getLeaveRequests,
+  getShifts,
+  getSwapRequests,
   type IClient,
   type ITeam,
   type IUser,
 } from "../helper/axios";
+import { addDays, startOfWeek, toDateInputValue } from "../utils/dates";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
 
 type TableName = "staff" | "client" | "team";
+
+// null = couldn't load
+interface AttentionCounts {
+  unassigned: number | null;
+  swaps: number | null;
+  leave: number | null;
+}
 
 export const Admin = () => {
   const [showTable, setShowTable] = useState<TableName>("staff");
@@ -36,6 +47,71 @@ export const Admin = () => {
 
   // The detail page loads the user by id, so nothing needs passing along.
   const handleOnView = (id: string) => navigate(`/admin/staff/${id}`);
+
+  // "Needs attention" counts
+  const [attention, setAttention] = useState<AttentionCounts | null>(null); // null = loading
+  const [attentionReloadKey, setAttentionReloadKey] = useState(0);
+
+  useEffect(() => {
+    let ignore = false;
+    // Same Monday–Sunday week the roster opens on, so the numbers match.
+    const weekStart = startOfWeek(new Date());
+
+    Promise.all([
+      getShifts({
+        from: toDateInputValue(weekStart),
+        to: toDateInputValue(addDays(weekStart, 6)),
+      }),
+      getSwapRequests(["workerAccepted"]),
+      getLeaveRequests(),
+    ]).then(([shiftRes, swapRes, leaveRes]) => {
+      if (ignore) return;
+      setAttention({
+        unassigned:
+          shiftRes.status === "success"
+            ? shiftRes.allShifts.filter((s) => s.status === "unassigned")
+                .length
+            : null,
+        swaps:
+          swapRes.status === "success" ? swapRes.swapRequests.length : null,
+        leave:
+          leaveRes.status === "success"
+            ? leaveRes.leaveRequests.filter((l) => l.status === "pending")
+                .length
+            : null,
+      });
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [attentionReloadKey]);
+
+  const attentionCards: {
+    key: keyof AttentionCounts;
+    label: string;
+    tone: "orange" | "cyan";
+    to: string;
+  }[] = [
+    {
+      key: "unassigned",
+      label: "Unassigned shifts this week",
+      tone: "orange",
+      to: "/admin/shifts?tab=roster&status=unassigned",
+    },
+    {
+      key: "swaps",
+      label: "Swap requests to review",
+      tone: "cyan",
+      to: "/admin/shifts?tab=swaps",
+    },
+    {
+      key: "leave",
+      label: "Leave requests pending",
+      tone: "orange",
+      to: "/admin/shifts?tab=leave",
+    },
+  ];
 
   const staffColumns: Column<IUser>[] = [
     {
@@ -98,7 +174,11 @@ export const Admin = () => {
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
     updateStaff: { title: "Update Staff Detail", body: <>Comming soon</> },
-    createShift: { title: "Create Shift", body: <ShiftForm /> },
+    createShift: {
+      title: "Create Shift",
+      // a new unassigned shift changes the "Needs attention" count
+      body: <ShiftForm onSaved={() => setAttentionReloadKey((k) => k + 1)} />,
+    },
     createTeam: {
       title: "Create Team",
       body: <CreateTeamForm />,
@@ -293,6 +373,35 @@ export const Admin = () => {
               >
                 Create Team
               </div>
+            </div>
+          </div>
+
+          <div className="mainScreenSection mt-5">
+            <div className="subtitle">Needs attention</div>
+            <div className="d-flex gap-3 mt-3 flex-wrap">
+              {attentionCards.map((card) => {
+                const count = attention ? attention[card.key] : undefined;
+                const isClear = count === 0;
+                return (
+                  <button
+                    key={card.key}
+                    type="button"
+                    className={`attentionCard ${count ? card.tone : "clear"}`}
+                    onClick={() => navigate(card.to)}
+                  >
+                    <span className="attentionCount">
+                      {count === undefined ? "…" : count === null ? "—" : count}
+                    </span>
+                    <span className="attentionLabel">
+                      {card.label}
+                      {isClear && (
+                        <span className="mutedDate d-block">All clear</span>
+                      )}
+                    </span>
+                    <span className="attentionArrow">→</span>
+                  </button>
+                );
+              })}
             </div>
           </div>
 

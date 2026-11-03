@@ -1,6 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Button, Container, Dropdown, Form, Spinner } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { IoMdAdd } from "react-icons/io";
 import { toast } from "react-toastify";
 import { useUser } from "../contex/UserContext";
@@ -10,6 +10,7 @@ import { DataTable, type Column } from "../components/custom/DataTable";
 import { ShiftForm } from "../components/forms/ShiftForm";
 import { AssignWorkerModal } from "../components/shifts/AssignWorkerModal";
 import { SwapRequestsTab } from "../components/shifts/SwapRequestsTab";
+import { LeaveRequestsTab } from "../components/shifts/LeaveRequestsTab";
 import {
   cancelShift,
   deleteShifts,
@@ -18,7 +19,9 @@ import {
   getAllUsers,
   getShifts,
   getSwapRequests,
+  getLeaveRequests,
   updateShift,
+  type ILeaveRequest,
   type IShift,
   type ISwapRequest,
   type IUser,
@@ -51,6 +54,12 @@ const statusOptions: { value: StatusFilter; label: string }[] = [
   { value: "cancelled", label: "Cancelled" },
 ];
 
+const isTab = (value: string | null): value is Tab =>
+  value === "roster" || value === "swaps" || value === "leave";
+
+const isStatusFilter = (value: string | null): value is StatusFilter =>
+  statusOptions.some((o) => o.value === value);
+
 const formatWeekRange = (start: Date, end: Date) => {
   const short = { weekday: "short", day: "numeric", month: "short" } as const;
   return `${start.toLocaleDateString("en-AU", short)} – ${end.toLocaleDateString("en-AU", { ...short, year: "numeric" })}`;
@@ -58,7 +67,18 @@ const formatWeekRange = (start: Date, end: Date) => {
 
 export const AdminShifts = () => {
   const { activeModal, setActiveModal } = useUser();
-  const [tab, setTab] = useState<Tab>("roster");
+  // ?tab=swaps / ?tab=roster&status=unassigned, e.g. from the dashboard cards
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [tab, setTab] = useState<Tab>(() => {
+    const t = searchParams.get("tab");
+    return isTab(t) ? t : "roster";
+  });
+
+  // Keep the tab in the URL (replace, so Back still goes to the dashboard).
+  const changeTab = (t: Tab) => {
+    setTab(t);
+    setSearchParams({ tab: t }, { replace: true });
+  };
   const [weekStart, setWeekStart] = useState(() => startOfWeek(new Date()));
   const [shifts, setShifts] = useState<IShift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -70,7 +90,10 @@ export const AdminShifts = () => {
   );
   const [workers, setWorkers] = useState<IUser[]>([]);
 
-  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>(() => {
+    const s = searchParams.get("status");
+    return isStatusFilter(s) ? s : "all";
+  });
   const [workerFilter, setWorkerFilter] = useState("all"); // "all" | "unassigned" | worker id
 
   // Row actions
@@ -84,6 +107,12 @@ export const AdminShifts = () => {
   const needsReviewCount = swaps.filter(
     (s) => s.status === "workerAccepted",
   ).length;
+
+  // Leave requests: same idea as swaps.
+  const [leaves, setLeaves] = useState<ILeaveRequest[]>([]);
+  const [isLeavesLoading, setIsLeavesLoading] = useState(true);
+  const [leavesReloadKey, setLeavesReloadKey] = useState(0);
+  const pendingLeaveCount = leaves.filter((l) => l.status === "pending").length;
 
   const [cancelReason, setCancelReason] = useState("");
   const [reinstateUnassigned, setReinstateUnassigned] = useState(false);
@@ -166,6 +195,31 @@ export const AdminShifts = () => {
       ignore = true;
     };
   }, [swapsReloadKey]);
+
+  // Leave requests
+  useEffect(() => {
+    let ignore = false;
+
+    getLeaveRequests().then((res) => {
+      if (ignore) return;
+      if (res.status === "success") {
+        setLeaves(res.leaveRequests);
+      } else {
+        toast.error(res.message);
+      }
+      setIsLeavesLoading(false);
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [leavesReloadKey]);
+
+  // Approving leave can unassign shifts, so reload the roster too.
+  const handleLeavesChanged = () => {
+    setLeavesReloadKey((k) => k + 1);
+    setReloadKey((k) => k + 1);
+  };
 
   // An approved swap changes who works each shift, so reload both.
   const handleSwapsChanged = () => {
@@ -504,21 +558,21 @@ export const AdminShifts = () => {
         <div className="d-flex gap-2 mb-3">
           <Button
             variant={tab === "roster" ? "primary" : "outline-light"}
-            onClick={() => setTab("roster")}
+            onClick={() => changeTab("roster")}
           >
             Roster
           </Button>
           <Button
             variant={tab === "swaps" ? "primary" : "outline-light"}
-            onClick={() => setTab("swaps")}
+            onClick={() => changeTab("swaps")}
           >
             Swap requests{needsReviewCount > 0 && ` (${needsReviewCount})`}
           </Button>
           <Button
             variant={tab === "leave" ? "primary" : "outline-light"}
-            onClick={() => setTab("leave")}
+            onClick={() => changeTab("leave")}
           >
-            Leave requests
+            Leave requests{pendingLeaveCount > 0 && ` (${pendingLeaveCount})`}
           </Button>
         </div>
 
@@ -533,7 +587,12 @@ export const AdminShifts = () => {
             />
           )}
           {tab === "leave" && (
-            <p className="mutedDate text-center my-5">Coming soon.</p>
+            <LeaveRequestsTab
+              leaves={leaves}
+              isLoading={isLeavesLoading}
+              clientNames={clientNames}
+              onChanged={handleLeavesChanged}
+            />
           )}
         </div>
 

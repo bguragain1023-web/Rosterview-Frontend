@@ -557,6 +557,66 @@ export const reviewSwapRequest = async (
   });
 };
 
+// ---------- Leave requests ----------
+
+export type LeaveStatus = "pending" | "approved" | "rejected" | "cancelled";
+export type LeaveType = "annual" | "personal" | "sick" | "unpaid" | "other";
+
+export interface ILeaveRequest {
+  _id: string;
+  workerId: PersonRef | null; // null if the user was deleted
+  startDate: string; // ISO, UTC midnight
+  endDate: string; // ISO, UTC midnight (inclusive)
+  type: LeaveType;
+  reason?: string;
+  status: LeaveStatus;
+  reviewedBy?: PersonRef | null;
+  reviewedAt?: string;
+  reviewComment?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface GetLeaveRequestsResponse {
+  status: "success";
+  leaveRequests: ILeaveRequest[];
+}
+
+export interface ReviewLeaveResponse {
+  status: "success";
+  message: string;
+  unassignedShifts: number;
+}
+
+export const getLeaveRequests = async (): Promise<
+  GetLeaveRequestsResponse | ApiError
+> => {
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/leaverequest`,
+    headers: authHeader(),
+  });
+};
+
+// unassignShifts: when approving, free up the worker's shifts during the leave.
+export const reviewLeaveRequest = async (
+  id: string,
+  status: "approved" | "rejected",
+  reviewComment?: string,
+  unassignShifts?: boolean,
+): Promise<ReviewLeaveResponse | ApiError> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/leaverequest/${id}/review`,
+    data: {
+      status,
+      ...(reviewComment ? { reviewComment } : {}),
+      ...(unassignShifts !== undefined ? { unassignShifts } : {}),
+    },
+    headers: authHeader(),
+  });
+};
+
 export const createShift = async (
   data: CreateShiftPayload,
 ): Promise<CreateShiftResponse | ApiError> => {
