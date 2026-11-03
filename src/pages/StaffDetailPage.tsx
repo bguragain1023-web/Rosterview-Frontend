@@ -3,6 +3,8 @@ import { Button, Container, Spinner } from "react-bootstrap";
 import { Link, useParams } from "react-router-dom";
 import { getUserDetail, type IUserDetail } from "../helper/axios";
 import { StaffIdCard } from "../components/staff/StaffIdCard";
+import { EditStaffForm } from "../components/staff/EditStaffForm";
+import { StaffPermissionsForm } from "../components/staff/StaffPermissionsForm";
 
 type Mode = "view" | "edit" | "permissions";
 
@@ -12,8 +14,13 @@ export const StaffDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
   const [mode, setMode] = useState<Mode>("view");
-  // Bumped to refetch after a save (the setter is added with the edit form).
-  const [reloadKey] = useState(0);
+  // Bumped to refetch after a save.
+  const [reloadKey, setReloadKey] = useState(0);
+
+  const handleSaved = () => {
+    setMode("view");
+    setReloadKey((k) => k + 1);
+  };
 
   useEffect(() => {
     if (!id) return;
@@ -70,17 +77,25 @@ export const StaffDetailPage = () => {
       );
     }
 
-    // Placeholders: replaced by the edit form (step 4) and the permission
-    // checkboxes (step 5).
+    if (mode === "edit") {
+      return (
+        <div className="staffPanel">
+          <EditStaffForm
+            staff={staff}
+            onCancel={() => setMode("view")}
+            onSaved={handleSaved}
+          />
+        </div>
+      );
+    }
+
     return (
       <div className="staffPanel">
-        <div className="subtitle mb-3">
-          {mode === "edit" ? "Edit user detail" : "Update permissions"}
-        </div>
-        <p className="mutedDate">Coming in the next step.</p>
-        <Button variant="outline-light" onClick={() => setMode("view")}>
-          Cancel
-        </Button>
+        <StaffPermissionsForm
+          staff={staff}
+          onCancel={() => setMode("view")}
+          onSaved={handleSaved}
+        />
       </div>
     );
   };

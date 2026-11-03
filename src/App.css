@@ -292,6 +292,24 @@ body {
   word-break: break-word;
 }
 
+/* Permission checkboxes */
+.permissionGroup {
+  margin-bottom: 18px;
+}
+
+.permissionGroupTitle {
+  margin-bottom: 6px;
+  color: var(--color-text-muted);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.permissionName {
+  color: var(--color-text-muted);
+  font-size: 11px;
+}
+
 /* Edit form / permissions panel shown in place of the card */
 .staffPanel {
   max-width: 560px;
