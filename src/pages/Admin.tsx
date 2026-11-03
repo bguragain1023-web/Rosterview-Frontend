@@ -8,6 +8,7 @@ import { AppModal } from "../components/custom/AppModal";
 import { AddStaffForm } from "../components/forms/AddStaffForm";
 import { AddClientForm } from "../components/forms/AddClientForm";
 import { CreateTeamForm } from "../components/forms/CreateTeamForm";
+import { CreateShiftForm } from "../components/forms/CreateShiftForm";
 import { useEffect, useState, type ReactNode } from "react";
 import { DataTable, type Column } from "../components/custom/DataTable";
 import {
@@ -97,7 +98,7 @@ export const Admin = () => {
   const modals = {
     addStaff: { title: "Add New Staff", body: <AddStaffForm /> },
     updateStaff: { title: "Update Staff Detail", body: <>Comming soon</> },
-    createShift: { title: " Create Shift", body: <>Coming sooon</> },
+    createShift: { title: "Create Shift", body: <CreateShiftForm /> },
     createTeam: {
       title: "Create Team",
       body: <CreateTeamForm />,
@@ -274,12 +275,12 @@ export const Admin = () => {
                 <IoMdAdd /> Add New Client
               </div>
 
-              {/* <div
-                className="quickActionMenu"
+              <div
+                className="quickActionMenu text-success"
                 onClick={() => setActiveModal("createShift")}
               >
-                Create Shift
-              </div> */}
+                <IoMdAdd /> Create Shift
+              </div>
               <div
                 className="quickActionMenu"
                 onClick={() => setActiveModal("createTeam")}

@@ -354,3 +354,55 @@ export const updateStaffPermissions = async (
     headers: authHeader(),
   });
 };
+
+// ---------- Shifts ----------
+
+export type ShiftStatus = "unassigned" | "assigned" | "completed" | "cancelled";
+
+export interface IShift {
+  _id: string;
+  workerId: string | null;
+  clientId: string;
+  location: string;
+  date: string; // ISO, UTC midnight
+  startTime: string; // "HH:mm"
+  endTime: string; // "HH:mm"; earlier than startTime = overnight
+  breakMinutes: number;
+  totalHours: number;
+  status: ShiftStatus;
+  notes: string;
+  createdBy: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface CreateShiftPayload {
+  clientId: string;
+  workerId?: string; // left out = unassigned
+  location: string;
+  date: string; // "YYYY-MM-DD"
+  startTime: string;
+  endTime: string;
+  breakMinutes: number;
+  notes?: string;
+}
+
+export interface CreateShiftResponse {
+  status: "success";
+  message: string;
+  shift: IShift;
+  weeklyHours: number;
+  normalHours: number;
+  overtimeHours: number;
+}
+
+export const createShift = async (
+  data: CreateShiftPayload,
+): Promise<CreateShiftResponse | ApiError> => {
+  return apiProcessor({
+    method: "post",
+    url: `${baseURL}/shifts/createshift`,
+    data,
+    headers: authHeader(),
+  });
+};
