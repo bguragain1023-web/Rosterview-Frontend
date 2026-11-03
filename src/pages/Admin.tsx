@@ -33,17 +33,8 @@ export const Admin = () => {
   const closeModal = () => setActiveModal(null);
   const navigate = useNavigate();
 
-  const handleOnView = (id: string) => {
-    const selectedUser = staffList.find((u) => u._id == id);
-
-    if (selectedUser) {
-      navigate(`/admin/staff/${id}`, {
-        state: {
-          user: selectedUser,
-        },
-      });
-    }
-  };
+  // The detail page loads the user by id, so nothing needs passing along.
+  const handleOnView = (id: string) => navigate(`/admin/staff/${id}`);
 
   const staffColumns: Column<IUser>[] = [
     {

@@ -100,6 +100,8 @@ const getAccessJWT = () => {
   return localStorage.getItem("accessJWT");
 };
 
+const authHeader = () => ({ Authorization: `Bearer ${getAccessJWT()}` });
+
 const apiProcessor = async <T>({
   method,
   url,
@@ -257,4 +259,98 @@ export const getAllTeams = async (): Promise<GetAllTeamResponse | ApiError> => {
     },
   };
   return apiProcessor(obj);
+};
+
+// ---------- Staff detail ----------
+
+// A single user, as returned by GET /users/:id
+export interface IUserDetail {
+  _id: string;
+  name: string;
+  email: string;
+  phone: string;
+  status: "active" | "inactive";
+  roleId: string;
+  role: userRole | null;
+  team: { _id: string; name: string } | null;
+  mustChangePassword: boolean;
+  passwordChangedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+  rolePermissions: string[]; // from the role, cannot be removed per user
+  additionalPermissions: string[]; // extra, given to this user only
+}
+
+export interface IPermission {
+  _id: string;
+  name: string; // e.g. "client:read"
+  resource: string; // e.g. "client"
+  action: string; // e.g. "read"
+  description: string;
+}
+
+// Only send the fields that changed. "team" is the team NAME (backend looks it up by name).
+export interface UpdateStaffPayload {
+  name?: string;
+  email?: string;
+  phone?: string;
+  role?: userRole;
+  status?: "active" | "inactive";
+  team?: string;
+}
+
+export interface GetUserDetailResponse {
+  status: "success";
+  message: string;
+  userDetail: IUserDetail;
+}
+
+export interface GetAllPermissionsResponse {
+  status: "success";
+  message: string;
+  permissions: IPermission[];
+}
+
+export const getUserDetail = async (
+  id: string,
+): Promise<GetUserDetailResponse | ApiError> => {
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/users/${id}`,
+    headers: authHeader(),
+  });
+};
+
+export const getAllPermissions = async (): Promise<
+  GetAllPermissionsResponse | ApiError
+> => {
+  return apiProcessor({
+    method: "get",
+    url: `${baseURL}/permissions`,
+    headers: authHeader(),
+  });
+};
+
+export const updateStaff = async (
+  id: string,
+  data: UpdateStaffPayload,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/users/updateuser/${id}`,
+    data,
+    headers: authHeader(),
+  });
+};
+
+export const updateStaffPermissions = async (
+  id: string,
+  permissionNames: string[],
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/users/updateuser/${id}/permissions`,
+    data: { permissionNames },
+    headers: authHeader(),
+  });
 };
