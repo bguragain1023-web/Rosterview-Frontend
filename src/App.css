@@ -202,6 +202,60 @@ button.quickActionMenu {
   border-radius: 10px;
 }
 
+/* Worker leave panel: "My requests" list */
+.leaveList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 14px;
+}
+
+.leaveList li {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.leaveListMain {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.leaveListMain > span:first-child {
+  flex: 1;
+}
+
+/* Availability panel: weekly day toggles */
+.weekDayToggle {
+  min-width: 72px;
+  padding: 6px 10px;
+  border: 1px solid;
+  border-radius: 8px;
+  background: transparent;
+  font-size: 14px;
+}
+
+.weekDayToggle.available {
+  border-color: rgba(34, 197, 94, 0.6);
+  background: rgba(34, 197, 94, 0.12);
+  color: #22c55e;
+}
+
+.weekDayToggle.unavailable {
+  border-color: rgba(239, 68, 68, 0.6);
+  background: rgba(239, 68, 68, 0.12);
+  color: #ef4444;
+}
+
+.weekDayToggle:hover:not(:disabled) {
+  filter: brightness(1.25);
+}
+
+.weekDayToggle:disabled {
+  opacity: 0.6;
+}
+
 /* Worker roster calendar: dark theme for react-calendar */
 .rosterCalendar .react-calendar {
   width: 100%;

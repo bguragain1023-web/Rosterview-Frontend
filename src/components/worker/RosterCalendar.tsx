@@ -32,7 +32,13 @@ const sameMonth = (a: Date, b: Date) =>
 const isWorking = (s: IShift) =>
   s.status === "assigned" || s.status === "completed";
 
-export const RosterCalendar = () => {
+interface RosterCalendarProps {
+  // Change this number to make the calendar reload availability and leave
+  // (e.g. after the worker edits their availability).
+  refreshKey?: number;
+}
+
+export const RosterCalendar = ({ refreshKey = 0 }: RosterCalendarProps) => {
   const today = new Date();
   const [month, setMonth] = useState(() => startOfMonth(today));
   const [selectedDay, setSelectedDay] = useState(today);
@@ -67,7 +73,7 @@ export const RosterCalendar = () => {
     };
   }, [from, to]);
 
-  // Availability and leave: small, so load once.
+  // Availability and leave: small, so load once (and again when refreshKey changes).
   useEffect(() => {
     let ignore = false;
 
@@ -92,7 +98,7 @@ export const RosterCalendar = () => {
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [refreshKey]);
 
   // day key -> that day's shifts, built once per load
   const shiftsByDay = new Map<string, IShift[]>();

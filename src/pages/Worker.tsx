@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useUser } from "../contex/UserContext";
 import { RosterCalendar } from "../components/worker/RosterCalendar";
+import { AvailabilityPanel } from "../components/worker/AvailabilityPanel";
+import { LeavePanel } from "../components/worker/LeavePanel";
 
 type Section = "availability" | "leave" | "swaps" | "team";
 
@@ -16,6 +18,11 @@ export const Worker = () => {
   const { user } = useUser();
   // null = no section open, just the calendar
   const [openSection, setOpenSection] = useState<Section | null>(null);
+  // "Lifting state up": the panels and the calendar are siblings, so their
+  // parent holds this counter. A panel bumps it after a change (availability,
+  // leave), and the calendar reloads its red dots when it changes.
+  const [calendarVersion, setCalendarVersion] = useState(0);
+  const refreshCalendar = () => setCalendarVersion((v) => v + 1);
 
   const today = new Date().toLocaleDateString("en-AU", {
     weekday: "long",
@@ -55,7 +62,7 @@ export const Worker = () => {
           </div>
         </div>
 
-        {/* Section panel (filled in by later steps) */}
+        {/* Section panel */}
         {openSection && (
           <div className="mainScreenSection workerPanel mt-3">
             <div className="d-flex justify-content-between align-items-center mb-2">
@@ -68,12 +75,20 @@ export const Worker = () => {
                 Close
               </Button>
             </div>
-            <p className="mutedDate mb-0">Coming soon.</p>
+            {openSection === "availability" && (
+              <AvailabilityPanel onChanged={refreshCalendar} />
+            )}
+            {openSection === "leave" && (
+              <LeavePanel onChanged={refreshCalendar} />
+            )}
+            {(openSection === "swaps" || openSection === "team") && (
+              <p className="mutedDate mb-0">Coming soon.</p>
+            )}
           </div>
         )}
 
         <div className="mainScreenSection mt-4">
-          <RosterCalendar />
+          <RosterCalendar refreshKey={calendarVersion} />
         </div>
       </Container>
     </div>

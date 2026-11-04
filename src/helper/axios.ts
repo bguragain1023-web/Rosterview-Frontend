@@ -718,9 +718,56 @@ export interface ILeaveRequest {
   reviewedBy?: PersonRef | null;
   reviewedAt?: string;
   reviewComment?: string;
+  // Set when an admin/coordinator cancels APPROVED leave
+  cancelledAt?: string;
+  cancelledBy?: PersonRef | null;
+  cancelReason?: string;
   createdAt: string;
   updatedAt: string;
 }
+
+export interface CreateLeavePayload {
+  startDate: string; // "YYYY-MM-DD"
+  endDate: string; // "YYYY-MM-DD", inclusive
+  type: LeaveType;
+  reason?: string;
+}
+
+// Worker asks for leave (start must be today or later; backend checks too).
+export const createLeaveRequest = async (
+  data: CreateLeavePayload,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "post",
+    url: `${baseURL}/leaverequest/createLeaveRequest`,
+    data,
+    headers: authHeader(),
+  });
+};
+
+// Worker withdraws their own PENDING request.
+export const withdrawLeaveRequest = async (
+  id: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/leaverequest/${id}/cancel`,
+    headers: authHeader(),
+  });
+};
+
+// Admin/coordinator cancels APPROVED leave (worker is available again).
+export const cancelApprovedLeave = async (
+  id: string,
+  reason?: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/leaverequest/${id}/cancel-approved`,
+    data: reason ? { reason } : {},
+    headers: authHeader(),
+  });
+};
 
 export interface GetLeaveRequestsResponse {
   status: "success";

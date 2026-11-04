@@ -4,34 +4,28 @@ import { toast } from "react-toastify";
 import { ConfirmModal } from "../custom/ConfirmModal";
 import { DataTable, type Column } from "../custom/DataTable";
 import {
+  cancelApprovedLeave,
   getShifts,
   reviewLeaveRequest,
   type ILeaveRequest,
   type IShift,
 } from "../../helper/axios";
 import { formatShiftDate } from "../../utils/dates";
+import {
+  formatShortDay,
+  leaveDays,
+  leaveRange,
+  plural,
+} from "../../utils/leave";
 
 type View = "pending" | "history";
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-
-const formatDay = (iso: string) =>
-  new Date(iso).toLocaleDateString("en-AU", { day: "numeric", month: "short" });
-
-// Leave dates are stored as UTC midnight; both ends are inclusive.
-const leaveDays = (leave: ILeaveRequest) =>
-  Math.round(
-    (new Date(leave.endDate).getTime() - new Date(leave.startDate).getTime()) /
-      DAY_MS,
-  ) + 1;
-
-const leaveRange = (leave: ILeaveRequest) =>
-  leave.startDate === leave.endDate
-    ? formatShiftDate(leave.startDate)
-    : `${formatShiftDate(leave.startDate)} – ${formatShiftDate(leave.endDate)}`;
+// One dialog handles all three actions:
+// "approved" / "rejected" for pending requests, "cancel" for approved leave.
+type DecisionKind = "approved" | "rejected" | "cancel";
 
 interface Decision {
-  status: "approved" | "rejected";
+  kind: DecisionKind;
   leave: ILeaveRequest;
 }
 
@@ -50,24 +44,24 @@ export const LeaveRequestsTab = ({
 }: LeaveRequestsTabProps) => {
   const [view, setView] = useState<View>("pending");
   const [decision, setDecision] = useState<Decision | null>(null);
+  // Comment (approve/reject) or reason (cancel): same text box.
   const [comment, setComment] = useState("");
   // The worker's assigned shifts during the leave (approve dialog only)
   const [affectedShifts, setAffectedShifts] = useState<IShift[] | null>(null);
   const [unassignShifts, setUnassignShifts] = useState(true);
 
   const pending = leaves.filter((l) => l.status === "pending");
-  const rows = view === "pending" ? pending : leaves.filter((l) => l.status !== "pending");
+  const rows =
+    view === "pending" ? pending : leaves.filter((l) => l.status !== "pending");
 
-  const openDecision = async (
-    status: "approved" | "rejected",
-    leave: ILeaveRequest,
-  ) => {
+  const openDecision = async (kind: DecisionKind, leave: ILeaveRequest) => {
     setComment("");
     setUnassignShifts(true);
     setAffectedShifts(null);
-    setDecision({ status, leave });
+    setDecision({ kind, leave });
 
-    if (status !== "approved" || !leave.workerId) return;
+    // Only approving needs to look at the worker's rostered shifts.
+    if (kind !== "approved" || !leave.workerId) return;
 
     const workerId = leave.workerId._id;
     const res = await getShifts({
@@ -88,8 +82,22 @@ export const LeaveRequestsTab = ({
 
   const handleDecision = async () => {
     if (!decision) return;
-    const { status, leave } = decision;
-    if (status === "approved" && leave.workerId && affectedShifts === null) {
+    const { kind, leave } = decision;
+    const text = comment.trim() || undefined;
+
+    // Cancel approved leave
+    if (kind === "cancel") {
+      const res = await cancelApprovedLeave(leave._id, text);
+      toast[res.status](res.message);
+      if (res.status === "success") {
+        setDecision(null);
+        onChanged();
+      }
+      return;
+    }
+
+    // Approve / reject a pending request
+    if (kind === "approved" && leave.workerId && affectedShifts === null) {
       toast.info("Still checking rostered shifts, try again in a moment");
       return;
     }
@@ -97,20 +105,20 @@ export const LeaveRequestsTab = ({
 
     const res = await reviewLeaveRequest(
       leave._id,
-      status,
-      comment.trim() || undefined,
-      status === "approved" && hasAffected ? unassignShifts : undefined,
+      kind,
+      text,
+      kind === "approved" && hasAffected ? unassignShifts : undefined,
     );
     if (res.status !== "success") {
       toast.error(res.message);
       return;
     }
 
-    if (status === "approved") {
+    if (kind === "approved") {
       const n = res.unassignedShifts;
       toast.success(
         n > 0
-          ? `Leave approved · ${n} shift${n === 1 ? "" : "s"} unassigned`
+          ? `Leave approved · ${plural(n, "shift")} unassigned`
           : "Leave approved",
       );
     } else {
@@ -121,21 +129,16 @@ export const LeaveRequestsTab = ({
   };
 
   const columns: Column<ILeaveRequest>[] = [
-    { header: "Requested", render: (l) => formatDay(l.createdAt) },
+    { header: "Requested", render: (l) => formatShortDay(l.createdAt) },
     { header: "Worker", render: (l) => l.workerId?.name ?? "Unknown" },
     {
       header: "Dates",
-      render: (l) => {
-        const days = leaveDays(l);
-        return (
-          <>
-            <div>{leaveRange(l)}</div>
-            <div className="mutedDate">
-              {days} day{days === 1 ? "" : "s"}
-            </div>
-          </>
-        );
-      },
+      render: (l) => (
+        <>
+          <div>{leaveRange(l)}</div>
+          <div className="mutedDate">{plural(leaveDays(l), "day")}</div>
+        </>
+      ),
     },
     {
       header: "Type",
@@ -152,40 +155,64 @@ export const LeaveRequestsTab = ({
           <span className={`leaveStatus ${l.status}`}>{l.status}</span>
           {l.reviewedBy && (
             <div className="mutedDate mt-1">
-              by {l.reviewedBy.name}
-              {l.reviewedAt && ` · ${formatDay(l.reviewedAt)}`}
+              {l.status === "rejected" ? "rejected" : "approved"} by{" "}
+              {l.reviewedBy.name}
+              {l.reviewedAt && ` · ${formatShortDay(l.reviewedAt)}`}
             </div>
           )}
           {l.reviewComment && (
             <div className="mutedDate mt-1">“{l.reviewComment}”</div>
+          )}
+          {/* Approved leave that a manager cancelled afterwards */}
+          {l.cancelledBy && (
+            <div className="mutedDate mt-1">
+              cancelled by {l.cancelledBy.name}
+              {l.cancelledAt && ` · ${formatShortDay(l.cancelledAt)}`}
+              {l.cancelReason && ` — “${l.cancelReason}”`}
+            </div>
           )}
         </>
       ),
     },
     {
       header: "Actions",
-      render: (l) =>
-        l.status === "pending" && (
-          <div className="d-flex gap-2">
-            <Button size="sm" onClick={() => openDecision("approved", l)}>
-              Approve
-            </Button>
+      render: (l) => {
+        if (l.status === "pending") {
+          return (
+            <div className="d-flex gap-2">
+              <Button size="sm" onClick={() => openDecision("approved", l)}>
+                Approve
+              </Button>
+              <Button
+                size="sm"
+                variant="outline-danger"
+                onClick={() => openDecision("rejected", l)}
+              >
+                Reject
+              </Button>
+            </div>
+          );
+        }
+        if (l.status === "approved") {
+          return (
             <Button
               size="sm"
               variant="outline-danger"
-              onClick={() => openDecision("rejected", l)}
+              onClick={() => openDecision("cancel", l)}
             >
-              Reject
+              Cancel leave
             </Button>
-          </div>
-        ),
+          );
+        }
+        return null;
+      },
     },
   ];
 
   const leave = decision?.leave;
   const workerName = leave?.workerId?.name ?? "This worker";
   const leaveText = leave
-    ? `${workerName}'s ${leave.type} leave, ${leaveRange(leave)} (${leaveDays(leave)} day${leaveDays(leave) === 1 ? "" : "s"})`
+    ? `${workerName}'s ${leave.type} leave, ${leaveRange(leave)} (${plural(leaveDays(leave), "day")})`
     : "";
 
   const renderAffectedShifts = () => {
@@ -202,8 +229,8 @@ export const LeaveRequestsTab = ({
     return (
       <>
         <p className="mb-1">
-          {workerName} has {affectedShifts.length} shift
-          {affectedShifts.length === 1 ? "" : "s"} during this leave:
+          {workerName} has {plural(affectedShifts.length, "shift")} during this
+          leave:
         </p>
         <ul className="mb-2">
           {affectedShifts.map((s) => (
@@ -224,6 +251,32 @@ export const LeaveRequestsTab = ({
       </>
     );
   };
+
+  // Title, question, button and colour for each kind of decision.
+  const dialog: Record<
+    DecisionKind,
+    { title: string; question: string; label: string; textLabel: string }
+  > = {
+    approved: {
+      title: "Approve leave",
+      question: `Approve ${leaveText}?`,
+      label: "Approve",
+      textLabel: "Comment (optional)",
+    },
+    rejected: {
+      title: "Reject leave",
+      question: `Reject ${leaveText}?`,
+      label: "Reject",
+      textLabel: "Comment (optional)",
+    },
+    cancel: {
+      title: "Cancel approved leave",
+      question: `Cancel ${leaveText}? They'll be available on those days again. Shifts that were unassigned when the leave was approved stay unassigned.`,
+      label: "Cancel leave",
+      textLabel: "Reason (optional)",
+    },
+  };
+  const current = decision ? dialog[decision.kind] : null;
 
   return (
     <>
@@ -258,27 +311,25 @@ export const LeaveRequestsTab = ({
 
       <ConfirmModal
         show={decision !== null}
-        title={decision?.status === "approved" ? "Approve leave" : "Reject leave"}
+        title={current?.title ?? ""}
         message={
           <>
-            <p>
-              {decision?.status === "approved" ? "Approve" : "Reject"}{" "}
-              {leaveText}?
-            </p>
-            {decision?.status === "approved" && renderAffectedShifts()}
+            <p>{current?.question}</p>
+            {decision?.kind === "approved" && renderAffectedShifts()}
             <Form.Group controlId="leaveComment">
-              <Form.Label>Comment (optional)</Form.Label>
+              <Form.Label>{current?.textLabel}</Form.Label>
               <Form.Control
                 as="textarea"
                 rows={2}
+                maxLength={500}
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
               />
             </Form.Group>
           </>
         }
-        confirmLabel={decision?.status === "approved" ? "Approve" : "Reject"}
-        variant={decision?.status === "approved" ? "primary" : "danger"}
+        confirmLabel={current?.label}
+        variant={decision?.kind === "approved" ? "primary" : "danger"}
         onConfirm={handleDecision}
         onCancel={() => setDecision(null)}
       />
