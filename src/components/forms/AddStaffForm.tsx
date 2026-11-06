@@ -5,7 +5,8 @@ import { useState, type SubmitEvent } from "react";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
 import { CustomInput } from "../custom/CustomInput";
-import { addNewUser } from "../../helper/axios";
+import { addNewUser, type userRole } from "../../helper/axios";
+import { roleLabel } from "../../utils/format";
 
 export interface AddStaffPayload {
   name: string;
@@ -20,6 +21,10 @@ const initialState = {
   email: "",
   phone: "",
 };
+
+// The only roles the backend accepts. The value sent is the exact word,
+// the label is what the admin sees ("teamLeader" → "Team Leader").
+const ROLES: userRole[] = ["admin", "coordinator", "teamLeader", "worker"];
 
 export const AddStaffForm = () => {
   const { setActiveModal } = useUser();
@@ -44,14 +49,6 @@ export const AddStaffForm = () => {
       placeholder: "eg: abc@email.com",
       name: "email",
       value: form.email,
-    },
-
-    {
-      label: "Role",
-      type: "text",
-      placeholder: "Role",
-      name: "role",
-      value: form.role,
     },
 
     {
@@ -123,6 +120,25 @@ export const AddStaffForm = () => {
               onChange={handleOnChange}
             />
           ))}
+
+          <Form.Group className="mb-3" controlId="staffRole">
+            <Form.Label>Role</Form.Label>
+            <Form.Select
+              name="role"
+              value={form.role}
+              onChange={handleOnChange}
+              required
+            >
+              <option value="" disabled>
+                Select a role
+              </option>
+              {ROLES.map((r) => (
+                <option key={r} value={r}>
+                  {roleLabel(r)}
+                </option>
+              ))}
+            </Form.Select>
+          </Form.Group>
 
           <Button variant="primary" type="submit">
             Submit

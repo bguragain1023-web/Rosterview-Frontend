@@ -45,7 +45,6 @@ export const Admin = () => {
   const closeModal = () => setActiveModal(null);
   const navigate = useNavigate();
 
-  // The detail page loads the user by id, so nothing needs passing along.
   const handleOnView = (id: string) => navigate(`/admin/staff/${id}`);
 
   // "Needs attention" counts
@@ -69,8 +68,7 @@ export const Admin = () => {
       setAttention({
         unassigned:
           shiftRes.status === "success"
-            ? shiftRes.allShifts.filter((s) => s.status === "unassigned")
-                .length
+            ? shiftRes.allShifts.filter((s) => s.status === "unassigned").length
             : null,
         swaps:
           swapRes.status === "success" ? swapRes.swapRequests.length : null,
@@ -209,11 +207,7 @@ export const Admin = () => {
     ),
 
     team: (
-      <DataTable
-        columns={teamColumns}
-        rows={teamList}
-        getKey={(t) => t._id}
-      />
+      <DataTable columns={teamColumns} rows={teamList} getKey={(t) => t._id} />
     ),
   };
 
