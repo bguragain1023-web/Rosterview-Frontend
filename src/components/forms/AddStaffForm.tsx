@@ -22,8 +22,6 @@ const initialState = {
   phone: "",
 };
 
-// The only roles the backend accepts. The value sent is the exact word,
-// the label is what the admin sees ("teamLeader" → "Team Leader").
 const ROLES: userRole[] = ["admin", "coordinator", "teamLeader", "worker"];
 
 export const AddStaffForm = () => {

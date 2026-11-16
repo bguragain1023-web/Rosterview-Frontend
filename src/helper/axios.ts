@@ -637,6 +637,39 @@ export const reviewSwapRequest = async (
   });
 };
 
+// Teammates' assigned shifts on targetedDate that could swap with my shift.
+// targetedDate is "YYYY-MM-DD": from my shift's date up to 15 days after.
+export interface EligibleSwapShiftsResponse {
+  status: "success";
+  message: string;
+  result: IShift[]; // with clientName / workerName filled in
+}
+
+export const getEligibleSwapShifts = async (
+  requestedShiftId: string,
+  targetedDate: string,
+): Promise<EligibleSwapShiftsResponse | ApiError> => {
+  return apiProcessor({
+    method: "post",
+    url: `${baseURL}/swapShift/eligibileshift`, // spelling matches the backend route
+    data: { requestedShiftId, targetedDate },
+    headers: authHeader(),
+  });
+};
+
+// Ask a teammate to swap: my shift for theirs. Starts as "pending".
+export const createSwapRequest = async (
+  requestedShiftId: string,
+  targetedShiftId: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "post",
+    url: `${baseURL}/swapShift/createSwapShift`,
+    data: { requestedShiftId, targetedShiftId },
+    headers: authHeader(),
+  });
+};
+
 // ---------- Availability ----------
 
 export interface IAvailability {
