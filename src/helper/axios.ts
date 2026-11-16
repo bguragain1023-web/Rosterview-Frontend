@@ -487,10 +487,12 @@ export interface GetShiftsResponse {
 }
 
 // from/to are "YYYY-MM-DD", both inclusive and optional.
-export const getShifts = async (range: {
-  from?: string;
-  to?: string;
-} = {}): Promise<GetShiftsResponse | ApiError> => {
+export const getShifts = async (
+  range: {
+    from?: string;
+    to?: string;
+  } = {},
+): Promise<GetShiftsResponse | ApiError> => {
   const query = new URLSearchParams();
   if (range.from) query.set("from", range.from);
   if (range.to) query.set("to", range.to);
