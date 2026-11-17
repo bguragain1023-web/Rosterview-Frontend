@@ -8,6 +8,7 @@ import {
   type IShift,
 } from "../../helper/axios";
 import { addDays, formatShiftDate, toDateInputValue } from "../../utils/dates";
+import { MySwapRequests } from "./MySwapRequests";
 
 type View = "create" | "view";
 
@@ -154,7 +155,7 @@ export const SwapPanel = () => {
       </div>
 
       {view === "view" ? (
-        <p className="mutedDate mb-0">Your swap requests will show here.</p>
+        <MySwapRequests />
       ) : isLoading ? (
         <div className="text-center my-3">
           <Spinner animation="border" size="sm" />

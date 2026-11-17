@@ -672,6 +672,20 @@ export const createSwapRequest = async (
   });
 };
 
+// The teammate's answer to a swap request sent to them.
+// Accept → "workerAccepted" (waits for a manager), reject → "rejected".
+export const respondToSwapRequest = async (
+  id: string,
+  action: "accept" | "reject",
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/swapShift/${id}/accept`, // same route for both answers
+    data: { action },
+    headers: authHeader(),
+  });
+};
+
 // ---------- Availability ----------
 
 export interface IAvailability {
