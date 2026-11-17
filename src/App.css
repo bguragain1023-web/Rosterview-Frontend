@@ -595,6 +595,12 @@ button.quickActionMenu {
   text-decoration: underline;
 }
 
+/* Push the role badge and status to the right, whether the name is a link
+   (admin) or plain text with an optional "(you)" (worker). */
+.teamMembers li .roleBadge {
+  margin-left: auto;
+}
+
 /* Manage members panel */
 .manageMembers li {
   padding: 6px 0;

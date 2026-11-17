@@ -5,6 +5,7 @@ import { RosterCalendar } from "../components/worker/RosterCalendar";
 import { AvailabilityPanel } from "../components/worker/AvailabilityPanel";
 import { LeavePanel } from "../components/worker/LeavePanel";
 import { SwapPanel } from "../components/worker/SwapPanel";
+import { MyTeamPanel } from "../components/worker/MyTeamPanel";
 
 type Section = "availability" | "leave" | "swaps" | "team";
 
@@ -83,9 +84,7 @@ export const Worker = () => {
               <LeavePanel onChanged={refreshCalendar} />
             )}
             {openSection === "swaps" && <SwapPanel />}
-            {openSection === "team" && (
-              <p className="mutedDate mb-0">Coming soon.</p>
-            )}
+            {openSection === "team" && <MyTeamPanel />}
           </div>
         )}
 

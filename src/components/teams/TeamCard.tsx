@@ -2,7 +2,19 @@ import { Link } from "react-router-dom";
 import type { ITeamDetail } from "../../helper/axios";
 import { formatDate, getInitials, roleLabel } from "../../utils/format";
 
-export const TeamCard = ({ team }: { team: ITeamDetail }) => {
+interface TeamCardProps {
+  team: ITeamDetail;
+  // Admin pages link each member to their staff page; workers just see names.
+  linkMembers?: boolean;
+  // Marks this member with "(you)"
+  currentUserId?: string;
+}
+
+export const TeamCard = ({
+  team,
+  linkMembers = true,
+  currentUserId,
+}: TeamCardProps) => {
   const { members } = team;
   const status = team.isActive ? "active" : "inactive";
 
@@ -41,7 +53,14 @@ export const TeamCard = ({ team }: { team: ITeamDetail }) => {
         <ul className="teamMembers">
           {members.map((m) => (
             <li key={m._id}>
-              <Link to={`/admin/staff/${m._id}`}>{m.name}</Link>
+              {linkMembers ? (
+                <Link to={`/admin/staff/${m._id}`}>{m.name}</Link>
+              ) : (
+                <span className="memberName">{m.name}</span>
+              )}
+              {m._id === currentUserId && (
+                <span className="mutedDate">(you)</span>
+              )}
               <span className="roleBadge">{roleLabel(m.role)}</span>
               <span className={`statusPill ${m.status}`}>{m.status}</span>
             </li>
