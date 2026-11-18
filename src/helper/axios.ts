@@ -640,7 +640,8 @@ export const reviewSwapRequest = async (
 };
 
 // Teammates' assigned shifts on targetedDate that could swap with my shift.
-// targetedDate is "YYYY-MM-DD": from my shift's date up to 15 days after.
+// targetedDate is "YYYY-MM-DD", in the same Monday–Sunday week as my shift
+// (one pay cycle) and not in the past.
 export interface EligibleSwapShiftsResponse {
   status: "success";
   message: string;
@@ -682,6 +683,17 @@ export const respondToSwapRequest = async (
     method: "patch",
     url: `${baseURL}/swapShift/${id}/accept`, // same route for both answers
     data: { action },
+    headers: authHeader(),
+  });
+};
+
+// Take back a swap request I sent, while it's pending or waiting for a manager.
+export const cancelSwapRequest = async (
+  id: string,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/swapShift/${id}/cancel`,
     headers: authHeader(),
   });
 };

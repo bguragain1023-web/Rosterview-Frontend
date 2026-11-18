@@ -2,7 +2,9 @@ import { useEffect, useState } from "react";
 import { Button, Spinner } from "react-bootstrap";
 import { toast } from "react-toastify";
 import { useUser } from "../../contex/UserContext";
+import { ConfirmModal } from "../custom/ConfirmModal";
 import {
+  cancelSwapRequest,
   getSwapRequests,
   respondToSwapRequest,
   type ISwapRequest,
@@ -52,6 +54,8 @@ export const MySwapRequests = () => {
   const [reloadKey, setReloadKey] = useState(0);
   // The request being answered, so only its buttons are disabled.
   const [respondingId, setRespondingId] = useState<string | null>(null);
+  // The request whose "Cancel request" dialog is open (null = closed).
+  const [cancelling, setCancelling] = useState<ISwapRequest | null>(null);
 
   // For a worker, the backend returns only swaps they sent or received.
   useEffect(() => {
@@ -84,6 +88,16 @@ export const MySwapRequests = () => {
     if (res.status === "success") setReloadKey((k) => k + 1);
   };
 
+  const handleCancel = async () => {
+    if (!cancelling) return;
+    const res = await cancelSwapRequest(cancelling._id);
+    toast[res.status](res.message);
+    // Close and reload either way: the usual error is "already decided",
+    // so the list needs refreshing to show what happened.
+    setCancelling(null);
+    setReloadKey((k) => k + 1);
+  };
+
   if (isLoading) {
     return (
       <div className="text-center my-3">
@@ -97,6 +111,7 @@ export const MySwapRequests = () => {
   }
 
   return (
+    <>
     <ul className="leaveList">
       {swaps.map((s) => {
         // Seen from my side: did I ask, or was I asked?
@@ -106,6 +121,9 @@ export const MySwapRequests = () => {
         const myShift = iAsked ? s.requestedShiftId : s.targetedShiftId;
         const theirShift = iAsked ? s.targetedShiftId : s.requestedShiftId;
         const outcome = outcomeText(s, iAsked, other);
+        // I sent it and nobody has made a final decision yet
+        const canCancel =
+          iAsked && (s.status === "pending" || s.status === "workerAccepted");
 
         return (
           <li key={s._id}>
@@ -118,6 +136,18 @@ export const MySwapRequests = () => {
             <div className="mutedDate">Your shift: {shiftText(myShift)}</div>
             <div className="mutedDate">Their shift: {shiftText(theirShift)}</div>
             {outcome && <div className="mutedDate small">{outcome}</div>}
+
+            {canCancel && (
+              <div className="d-flex justify-content-end mt-2">
+                <Button
+                  size="sm"
+                  variant="outline-danger"
+                  onClick={() => setCancelling(s)}
+                >
+                  Cancel request
+                </Button>
+              </div>
+            )}
 
             {!iAsked && s.status === "pending" && (
               <div className="d-flex gap-2 justify-content-end mt-2">
@@ -142,5 +172,22 @@ export const MySwapRequests = () => {
         );
       })}
     </ul>
+
+    <ConfirmModal
+      show={cancelling !== null}
+      title="Cancel swap request"
+      message={
+        <>
+          Cancel your swap request with{" "}
+          {cancelling?.requestedTo?.name ?? "your teammate"}? Your shifts stay
+          as they are.
+        </>
+      }
+      confirmLabel="Yes, cancel request"
+      variant="danger"
+      onConfirm={handleCancel}
+      onCancel={() => setCancelling(null)}
+    />
+    </>
   );
 };

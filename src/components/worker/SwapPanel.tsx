@@ -7,13 +7,15 @@ import {
   getShifts,
   type IShift,
 } from "../../helper/axios";
-import { addDays, formatShiftDate, toDateInputValue } from "../../utils/dates";
+import {
+  addDays,
+  formatShiftDate,
+  startOfWeek,
+  toDateInputValue,
+} from "../../utils/dates";
 import { MySwapRequests } from "./MySwapRequests";
 
 type View = "create" | "view";
-
-// The backend only allows a swap date up to 15 days after my shift.
-const MAX_SWAP_DAYS = 15;
 
 // "Thu 20 Nov · 09:00–17:00 · Mary Smith"
 const shiftLabel = (s: IShift) =>
@@ -66,10 +68,14 @@ export const SwapPanel = () => {
 
   // Derived: the chosen shift, and the dates the backend will accept.
   const myShift = myShifts.find((s) => s._id === myShiftId);
-  const minDate = myShift ? myShift.date.slice(0, 10) : "";
-  const maxDate = myShift
-    ? toDateInputValue(addDays(new Date(`${minDate}T00:00:00`), MAX_SWAP_DAYS))
-    : "";
+  // The backend allows the shift's Monday–Sunday week (one pay cycle),
+  // but not days that have already passed.
+  const weekStart = myShift
+    ? startOfWeek(new Date(`${myShift.date.slice(0, 10)}T00:00:00`))
+    : null;
+  const mondayKey = weekStart ? toDateInputValue(weekStart) : "";
+  const minDate = mondayKey > todayKey ? mondayKey : todayKey; // the later of the two
+  const maxDate = weekStart ? toDateInputValue(addDays(weekStart, 6)) : ""; // Sunday
 
   // Changing the shift or the date makes old search results wrong.
   const clearResults = () => {
@@ -209,7 +215,7 @@ export const SwapPanel = () => {
             </div>
             {myShift && (
               <Form.Text className="mutedDate">
-                Any day from {formatShiftDate(myShift.date)} to{" "}
+                Same week as your shift: {formatShiftDate(`${minDate}T00:00:00Z`)} to{" "}
                 {formatShiftDate(`${maxDate}T00:00:00Z`)}
               </Form.Text>
             )}
