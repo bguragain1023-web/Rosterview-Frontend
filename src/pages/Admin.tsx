@@ -1,6 +1,4 @@
-import { MdOutlineDashboard } from "react-icons/md";
 import { SlPeople } from "react-icons/sl";
-import { RiTeamLine } from "react-icons/ri";
 import { SlCalender } from "react-icons/sl";
 import { IoMdAdd } from "react-icons/io";
 import { useUser } from "../contex/UserContext";
