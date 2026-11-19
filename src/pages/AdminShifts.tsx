@@ -66,7 +66,9 @@ const formatWeekRange = (start: Date, end: Date) => {
 };
 
 export const AdminShifts = () => {
-  const { activeModal, setActiveModal } = useUser();
+  const { activeModal, setActiveModal, user } = useUser();
+  // Admins and coordinators both use this page; send each back to their own dashboard.
+  const dashboardPath = user?.role === "coordinator" ? "/coordinator" : "/admin";
   // ?tab=swaps / ?tab=roster&status=unassigned, e.g. from the dashboard cards
   const [searchParams, setSearchParams] = useSearchParams();
   const [tab, setTab] = useState<Tab>(() => {
@@ -545,7 +547,7 @@ export const AdminShifts = () => {
     <div className="layoutWrapper p-3">
       <Container>
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <Link to="/admin" className="backLink">
+          <Link to={dashboardPath} className="backLink">
             ← Back to dashboard
           </Link>
           <Button onClick={() => setActiveModal("createShift")}>
