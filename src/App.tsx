@@ -63,6 +63,7 @@ function App() {
           <Route element={<PrivateRoutes allowedRoles={["coordinator"]} />}>
             <Route path="coordinator" element={<Coordinator />} />
             <Route path="coordinator/shifts" element={<AdminShifts />} />
+            <Route path="coordinator/teams/:id" element={<TeamDetailPage />} />
           </Route>
 
           <Route element={<PrivateRoutes allowedRoles={["teamLeader"]} />}>

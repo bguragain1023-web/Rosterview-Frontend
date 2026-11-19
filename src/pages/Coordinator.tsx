@@ -135,7 +135,7 @@ export const Coordinator = () => {
     year: "numeric",
   });
 
-  // No "View" buttons: the staff and team detail pages are admin-only.
+  // No "View" button for staff: the staff detail page is admin-only.
   const staffColumns: Column<IUser>[] = [
     { header: "Name", render: (u) => u.name },
     { header: "Email", render: (u) => u.email },
@@ -165,6 +165,18 @@ export const Coordinator = () => {
         staffList.find((u) => u._id === t.teamLeaderId)?.name ?? "Unassigned",
     },
     { header: "Description", render: (t) => t.description },
+    {
+      header: "Action",
+      render: (t) => (
+        <Button
+          size="sm"
+          variant="outline-light"
+          onClick={() => navigate(`/coordinator/teams/${t._id}`)}
+        >
+          View
+        </Button>
+      ),
+    },
   ];
 
   const tables: Record<TableName, ReactNode> = {

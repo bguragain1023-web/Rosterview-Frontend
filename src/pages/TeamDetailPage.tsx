@@ -5,11 +5,15 @@ import { getTeamDetail, type ITeamDetail } from "../helper/axios";
 import { TeamCard } from "../components/teams/TeamCard";
 import { EditTeamForm } from "../components/teams/EditTeamForm";
 import { ManageMembersPanel } from "../components/teams/ManageMembersPanel";
+import { useUser } from "../contex/UserContext";
 
 type Mode = "view" | "edit" | "members";
 
 export const TeamDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useUser();
+  // Only admins can edit teams; coordinators get a read-only view.
+  const isAdmin = user?.role === "admin";
   const [team, setTeam] = useState<ITeamDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -65,13 +69,18 @@ export const TeamDetailPage = () => {
     if (mode === "view") {
       return (
         <>
-          <TeamCard team={team} />
-          <div className="d-flex gap-2 mt-3 justify-content-center">
-            <Button onClick={() => setMode("edit")}>Edit team</Button>
-            <Button variant="outline-light" onClick={() => setMode("members")}>
-              Manage members
-            </Button>
-          </div>
+          <TeamCard team={team} linkMembers={isAdmin} />
+          {isAdmin && (
+            <div className="d-flex gap-2 mt-3 justify-content-center">
+              <Button onClick={() => setMode("edit")}>Edit team</Button>
+              <Button
+                variant="outline-light"
+                onClick={() => setMode("members")}
+              >
+                Manage members
+              </Button>
+            </div>
+          )}
         </>
       );
     }
@@ -102,7 +111,7 @@ export const TeamDetailPage = () => {
   return (
     <div className="layoutWrapper p-3">
       <Container>
-        <Link to="/admin" className="backLink">
+        <Link to={isAdmin ? "/admin" : "/coordinator"} className="backLink">
           ← Back to dashboard
         </Link>
         {renderContent()}
