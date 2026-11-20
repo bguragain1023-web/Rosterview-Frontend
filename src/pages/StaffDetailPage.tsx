@@ -5,11 +5,15 @@ import { getUserDetail, type IUserDetail } from "../helper/axios";
 import { StaffIdCard } from "../components/staff/StaffIdCard";
 import { EditStaffForm } from "../components/staff/EditStaffForm";
 import { StaffPermissionsForm } from "../components/staff/StaffPermissionsForm";
+import { useUser } from "../contex/UserContext";
 
 type Mode = "view" | "edit" | "permissions";
 
 export const StaffDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { user } = useUser();
+  // Only admins can edit staff; coordinators get a read-only view.
+  const isAdmin = user?.role === "admin";
   const [staff, setStaff] = useState<IUserDetail | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
@@ -64,15 +68,17 @@ export const StaffDetailPage = () => {
       return (
         <>
           <StaffIdCard staff={staff} />
-          <div className="d-flex gap-2 mt-3 justify-content-center">
-            <Button onClick={() => setMode("edit")}>Edit user detail</Button>
-            <Button
-              variant="outline-light"
-              onClick={() => setMode("permissions")}
-            >
-              Update permissions
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="d-flex gap-2 mt-3 justify-content-center">
+              <Button onClick={() => setMode("edit")}>Edit user detail</Button>
+              <Button
+                variant="outline-light"
+                onClick={() => setMode("permissions")}
+              >
+                Update permissions
+              </Button>
+            </div>
+          )}
         </>
       );
     }
@@ -103,7 +109,7 @@ export const StaffDetailPage = () => {
   return (
     <div className="layoutWrapper p-3">
       <Container>
-        <Link to="/admin" className="backLink">
+        <Link to={isAdmin ? "/admin" : "/coordinator"} className="backLink">
           ← Back to staff
         </Link>
         {renderContent()}
