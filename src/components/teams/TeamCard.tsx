@@ -6,6 +6,8 @@ interface TeamCardProps {
   team: ITeamDetail;
   // Admin pages link each member to their staff page; workers just see names.
   linkMembers?: boolean;
+  // Where member links go, e.g. "/coordinator/staff". Defaults to the admin page.
+  staffPath?: string;
   // Marks this member with "(you)"
   currentUserId?: string;
 }
@@ -13,6 +15,7 @@ interface TeamCardProps {
 export const TeamCard = ({
   team,
   linkMembers = true,
+  staffPath = "/admin/staff",
   currentUserId,
 }: TeamCardProps) => {
   const { members } = team;
@@ -54,7 +57,7 @@ export const TeamCard = ({
           {members.map((m) => (
             <li key={m._id}>
               {linkMembers ? (
-                <Link to={`/admin/staff/${m._id}`}>{m.name}</Link>
+                <Link to={`${staffPath}/${m._id}`}>{m.name}</Link>
               ) : (
                 <span className="memberName">{m.name}</span>
               )}

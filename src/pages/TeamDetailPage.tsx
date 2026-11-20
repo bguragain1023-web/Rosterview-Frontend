@@ -69,7 +69,10 @@ export const TeamDetailPage = () => {
     if (mode === "view") {
       return (
         <>
-          <TeamCard team={team} linkMembers={isAdmin} />
+          <TeamCard
+            team={team}
+            staffPath={isAdmin ? "/admin/staff" : "/coordinator/staff"}
+          />
           {isAdmin && (
             <div className="d-flex gap-2 mt-3 justify-content-center">
               <Button onClick={() => setMode("edit")}>Edit team</Button>
