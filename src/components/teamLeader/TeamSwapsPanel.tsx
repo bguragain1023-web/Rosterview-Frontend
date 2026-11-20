@@ -3,8 +3,12 @@ import { toast } from "react-toastify";
 import { getSwapRequests, type ISwapRequest } from "../../helper/axios";
 import { SwapRequestsTab } from "../shifts/SwapRequestsTab";
 
+interface TeamSwapsPanelProps {
+  onChanged?: () => void; // e.g. refresh the "Needs attention" counts
+}
+
 // For a team leader, the backend returns only swaps between their team's workers.
-export const TeamSwapsPanel = () => {
+export const TeamSwapsPanel = ({ onChanged }: TeamSwapsPanelProps) => {
   const [swaps, setSwaps] = useState<ISwapRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
@@ -32,7 +36,10 @@ export const TeamSwapsPanel = () => {
     <SwapRequestsTab
       swaps={swaps}
       isLoading={isLoading}
-      onChanged={() => setReloadKey((k) => k + 1)}
+      onChanged={() => {
+        setReloadKey((k) => k + 1); // reload this list
+        onChanged?.(); // tell the parent
+      }}
     />
   );
 };

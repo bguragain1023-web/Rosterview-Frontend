@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useUser } from "../contex/UserContext";
+import { getLeaveRequests, getSwapRequests } from "../helper/axios";
 import { MyTeamPanel } from "../components/worker/MyTeamPanel";
 import { TeamSwapsPanel } from "../components/teamLeader/TeamSwapsPanel";
 import { TeamLeavePanel } from "../components/teamLeader/TeamLeavePanel";
@@ -15,10 +16,65 @@ const sections: { key: Section; label: string }[] = [
   { key: "team", label: "My team" },
 ];
 
+// null = couldn't load
+interface AttentionCounts {
+  swaps: number | null;
+  leave: number | null;
+}
+
+const attentionCards: {
+  key: keyof AttentionCounts;
+  label: string;
+  tone: "orange" | "cyan";
+  section: Section; // which section the card opens
+}[] = [
+  {
+    key: "swaps",
+    label: "Swap requests to review",
+    tone: "cyan",
+    section: "swaps",
+  },
+  {
+    key: "leave",
+    label: "Leave requests pending",
+    tone: "orange",
+    section: "leave",
+  },
+];
+
 export const TeamLeader = () => {
   const { user } = useUser();
   // null = no section open
   const [openSection, setOpenSection] = useState<Section | null>(null);
+
+  // "Needs attention" counts
+  const [attention, setAttention] = useState<AttentionCounts | null>(null); // null = loading
+  const [attentionReloadKey, setAttentionReloadKey] = useState(0);
+  const refreshAttention = () => setAttentionReloadKey((k) => k + 1);
+
+  useEffect(() => {
+    let ignore = false;
+
+    Promise.all([
+      getSwapRequests(["workerAccepted"]),
+      getLeaveRequests(),
+    ]).then(([swapRes, leaveRes]) => {
+      if (ignore) return;
+      setAttention({
+        swaps:
+          swapRes.status === "success" ? swapRes.swapRequests.length : null,
+        leave:
+          leaveRes.status === "success"
+            ? leaveRes.leaveRequests.filter((l) => l.status === "pending")
+                .length
+            : null,
+      });
+    });
+
+    return () => {
+      ignore = true;
+    };
+  }, [attentionReloadKey]);
 
   const today = new Date().toLocaleDateString("en-AU", {
     weekday: "long",
@@ -40,6 +96,35 @@ export const TeamLeader = () => {
             <span className="mutedDate">{today}</span>
           </Col>
         </Row>
+
+        <div className="mainScreenSection mt-4">
+          <div className="subtitle">Needs attention</div>
+          <div className="d-flex gap-3 mt-3 flex-wrap">
+            {attentionCards.map((card) => {
+              const count = attention ? attention[card.key] : undefined;
+              const isClear = count === 0;
+              return (
+                <button
+                  key={card.key}
+                  type="button"
+                  className={`attentionCard ${count ? card.tone : "clear"}`}
+                  onClick={() => setOpenSection(card.section)}
+                >
+                  <span className="attentionCount">
+                    {count === undefined ? "…" : count === null ? "—" : count}
+                  </span>
+                  <span className="attentionLabel">
+                    {card.label}
+                    {isClear && (
+                      <span className="mutedDate d-block">All clear</span>
+                    )}
+                  </span>
+                  <span className="attentionArrow">→</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
         <div className="mainScreenSection mt-4">
           <div className="quickActions d-flex gap-3 flex-wrap">
@@ -71,8 +156,12 @@ export const TeamLeader = () => {
               </Button>
             </div>
             {openSection === "roster" && <TeamRosterPanel />}
-            {openSection === "swaps" && <TeamSwapsPanel />}
-            {openSection === "leave" && <TeamLeavePanel />}
+            {openSection === "swaps" && (
+              <TeamSwapsPanel onChanged={refreshAttention} />
+            )}
+            {openSection === "leave" && (
+              <TeamLeavePanel onChanged={refreshAttention} />
+            )}
             {openSection === "team" && <MyTeamPanel />}
           </div>
         )}
