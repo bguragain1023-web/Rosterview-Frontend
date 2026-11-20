@@ -2,11 +2,16 @@ import { useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useUser } from "../contex/UserContext";
 import { MyTeamPanel } from "../components/worker/MyTeamPanel";
+import { TeamSwapsPanel } from "../components/teamLeader/TeamSwapsPanel";
+import { TeamLeavePanel } from "../components/teamLeader/TeamLeavePanel";
+import { TeamRosterPanel } from "../components/teamLeader/TeamRosterPanel";
 
-// More sections (roster, swaps, leave) get added here step by step.
-type Section = "team";
+type Section = "roster" | "swaps" | "leave" | "team";
 
 const sections: { key: Section; label: string }[] = [
+  { key: "roster", label: "Team roster" },
+  { key: "swaps", label: "Swaps" },
+  { key: "leave", label: "Leave" },
   { key: "team", label: "My team" },
 ];
 
@@ -65,6 +70,9 @@ export const TeamLeader = () => {
                 Close
               </Button>
             </div>
+            {openSection === "roster" && <TeamRosterPanel />}
+            {openSection === "swaps" && <TeamSwapsPanel />}
+            {openSection === "leave" && <TeamLeavePanel />}
             {openSection === "team" && <MyTeamPanel />}
           </div>
         )}

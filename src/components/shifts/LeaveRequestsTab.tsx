@@ -32,7 +32,10 @@ interface Decision {
 interface LeaveRequestsTabProps {
   leaves: ILeaveRequest[];
   isLoading: boolean;
-  clientNames: Map<string, string>;
+  // Left out for roles that can't read clients (team leader): shows location instead.
+  clientNames?: Map<string, string>;
+  // Cancelling approved leave needs leave:delete (admin/coordinator only).
+  canCancelApproved?: boolean;
   onChanged: () => void; // reload leave and the roster
 }
 
@@ -40,6 +43,7 @@ export const LeaveRequestsTab = ({
   leaves,
   isLoading,
   clientNames,
+  canCancelApproved = true,
   onChanged,
 }: LeaveRequestsTabProps) => {
   const [view, setView] = useState<View>("pending");
@@ -193,7 +197,7 @@ export const LeaveRequestsTab = ({
             </div>
           );
         }
-        if (l.status === "approved") {
+        if (l.status === "approved" && canCancelApproved) {
           return (
             <Button
               size="sm"
@@ -236,7 +240,9 @@ export const LeaveRequestsTab = ({
           {affectedShifts.map((s) => (
             <li key={s._id}>
               {formatShiftDate(s.date)} · {s.startTime}–{s.endTime} ·{" "}
-              {clientNames.get(s.clientId) ?? "Unknown client"}
+              {clientNames
+                ? (clientNames.get(s.clientId) ?? "Unknown client")
+                : s.location}
             </li>
           ))}
         </ul>
