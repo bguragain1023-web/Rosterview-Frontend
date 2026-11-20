@@ -38,7 +38,9 @@ const shiftSummary = (shift: SwapShiftInfo | null) =>
 interface SwapRequestsTabProps {
   swaps: ISwapRequest[];
   isLoading: boolean;
-  clientNames: Map<string, string>;
+  // Client names by id. Left out for roles that can't read clients
+  // (team leader): then only the location is shown.
+  clientNames?: Map<string, string>;
   onChanged: () => void; // reload swaps and the roster
 }
 
@@ -90,7 +92,8 @@ export const SwapRequestsTab = ({
           {formatShiftDate(shift.date)} · {shift.startTime}–{shift.endTime}
         </div>
         <div className="mutedDate">
-          {clientNames.get(shift.clientId) ?? "Unknown client"} ·{" "}
+          {clientNames &&
+            `${clientNames.get(shift.clientId) ?? "Unknown client"} · `}
           {shift.location}
         </div>
       </>
