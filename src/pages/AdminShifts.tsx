@@ -91,6 +91,10 @@ export const AdminShifts = () => {
     new Map(),
   );
   const [workers, setWorkers] = useState<IUser[]>([]);
+  // Client id -> team id, for the area rule when assigning.
+  const [clientTeams, setClientTeams] = useState<Map<string, string | null>>(
+    new Map(),
+  );
 
   const [statusFilter, setStatusFilter] = useState<StatusFilter>(() => {
     const s = searchParams.get("status");
@@ -132,6 +136,14 @@ export const AdminShifts = () => {
   const workerNames = new Map(workers.map((w) => [w._id, w.name]));
   const activeWorkers = workers.filter((w) => w.status === "active");
 
+  // Workers who may work the shift being assigned: active and in the client's team.
+  const assignTeamId = assigningShift
+    ? (clientTeams.get(assigningShift.clientId) ?? null)
+    : null;
+  const assignableWorkers = activeWorkers.filter(
+    (w) => assignTeamId !== null && w.teamId === assignTeamId,
+  );
+
   // Names: load once
   useEffect(() => {
     let ignore = false;
@@ -142,6 +154,9 @@ export const AdminShifts = () => {
         if (clientRes.status === "success") {
           setClientNames(
             new Map(clientRes.clients.map((c) => [c._id, c.name])),
+          );
+          setClientTeams(
+            new Map(clientRes.clients.map((c) => [c._id, c.teamId ?? null])),
           );
         } else {
           toast.error(clientRes.message);
@@ -628,7 +643,7 @@ export const AdminShifts = () => {
         {/* Assign */}
         <AssignWorkerModal
           shift={assigningShift}
-          workers={activeWorkers}
+          workers={assignableWorkers}
           onClose={() => setAssigningShift(null)}
           onAssigned={() => {
             setAssigningShift(null);

@@ -6,7 +6,7 @@ import { formatShiftDate } from "../../utils/dates";
 
 interface AssignWorkerModalProps {
   shift: IShift | null; // null = closed
-  workers: IUser[]; // active workers to choose from
+  workers: IUser[]; // workers allowed on this shift (active, client's team)
   onClose: () => void;
   onAssigned: () => void;
 }
@@ -64,18 +64,25 @@ export const AssignWorkerModal = ({
             · {shift.location}
           </p>
         )}
-        <Form.Select
-          value={workerId}
-          onChange={(e) => setWorkerId(e.target.value)}
-          aria-label="Worker"
-        >
-          <option value="">Select worker</option>
-          {workers.map((w) => (
-            <option key={w._id} value={w._id}>
-              {w.name}
-            </option>
-          ))}
-        </Form.Select>
+        {workers.length === 0 ? (
+          <p className="mutedDate mb-0">
+            No workers can take this shift. The client may have no team yet, or
+            their team has no active workers.
+          </p>
+        ) : (
+          <Form.Select
+            value={workerId}
+            onChange={(e) => setWorkerId(e.target.value)}
+            aria-label="Worker"
+          >
+            <option value="">Select worker</option>
+            {workers.map((w) => (
+              <option key={w._id} value={w._id}>
+                {w.name}
+              </option>
+            ))}
+          </Form.Select>
+        )}
       </Modal.Body>
       <Modal.Footer>
         <Button
