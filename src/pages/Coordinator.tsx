@@ -165,6 +165,13 @@ export const Coordinator = () => {
     { header: "Email", render: (c) => c.email },
     { header: "Phone", render: (c) => c.phone },
     { header: "Address", render: (c) => c.address },
+    {
+      header: "Team",
+      render: (c) =>
+        teamList.find((t) => t._id === c.teamId)?.name ?? (
+          <span className="mutedDate">No team</span>
+        ),
+    },
     { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
   ];
 

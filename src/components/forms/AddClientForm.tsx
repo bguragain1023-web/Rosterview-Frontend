@@ -2,8 +2,8 @@ import { Button, Form } from "react-bootstrap";
 import { useUser } from "../../contex/UserContext";
 import useForm from "../../hooks/useForm";
 import { CustomInput } from "../custom/CustomInput";
-import type { SubmitEvent } from "react";
-import { addNewClient } from "../../helper/axios";
+import { useEffect, useState, type SubmitEvent } from "react";
+import { addNewClient, getAllTeams, type ITeam } from "../../helper/axios";
 import { toast } from "react-toastify";
 
 export interface AddClientPayload {
@@ -12,6 +12,7 @@ export interface AddClientPayload {
   address: string;
   email: string;
   notes: string;
+  teamId: string; // the client's area
 }
 
 const initialState = {
@@ -20,12 +21,30 @@ const initialState = {
   address: "",
   email: "",
   notes: "",
+  teamId: "",
 };
 
 export const AddClientForm = () => {
   const { setActiveModal } = useUser();
   const { form, setForm, handleOnChange } =
     useForm<AddClientPayload>(initialState);
+  const [teams, setTeams] = useState<ITeam[]>([]);
+
+  // Active teams only: the backend won't accept an inactive one.
+  useEffect(() => {
+    let ignore = false;
+    getAllTeams().then((res) => {
+      if (ignore) return;
+      if (res.status === "success") {
+        setTeams(res.teams.filter((t) => t.isActive));
+      } else {
+        toast.error(res.message);
+      }
+    });
+    return () => {
+      ignore = true;
+    };
+  }, []);
 
   const inputFields = [
     {
@@ -87,6 +106,28 @@ export const AddClientForm = () => {
       {inputFields.map((input) => (
         <CustomInput key={input.name} {...input} onChange={handleOnChange} />
       ))}
+
+      <Form.Group className="mb-3" controlId="clientTeam">
+        <Form.Label>Team (area)</Form.Label>
+        <Form.Select
+          name="teamId"
+          value={form.teamId}
+          onChange={handleOnChange}
+          required
+        >
+          <option value="" disabled>
+            Select a team
+          </option>
+          {teams.map((t) => (
+            <option key={t._id} value={t._id}>
+              {t.name}
+            </option>
+          ))}
+        </Form.Select>
+        <Form.Text className="mutedDate">
+          Only workers in this team can be assigned to this client's shifts.
+        </Form.Text>
+      </Form.Group>
 
       <Button variant="primary" type="submit">
         Submit

@@ -123,15 +123,23 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
     };
   }, []);
 
-  // Active clients/workers, plus the shift's current ones even if inactive,
-  // so editing doesn't silently switch them.
+  // Active clients, plus the shift's current one even if inactive.
   const clients = allClients.filter(
     (c) => c.isActive || c._id === shift?.clientId,
   );
+  // The worker list depends on the chosen client.
+  const selectedClient = clients.find((c) => c._id === form.clientId);
+  const clientTeamId = selectedClient?.teamId ?? null;
+
+  // Area rule: only active workers in the client's team. The shift's current
+  // worker is kept so editing doesn't silently switch them.
   const workers = allUsers.filter(
     (u) =>
       u.role === "worker" &&
-      (u.status === "active" || u._id === shift?.workerId),
+      (u._id === shift?.workerId ||
+        (u.status === "active" &&
+          clientTeamId !== null &&
+          u.teamId === clientTeamId)),
   );
 
   const todayValue = toDateInputValue(new Date());
@@ -142,19 +150,26 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
   const minDate =
     originalDate && originalDate < todayValue ? originalDate : todayValue;
 
-  const selectedClient = clients.find((c) => c._id === form.clientId);
-
   const handleClientChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const client = clients.find((c) => c._id === e.target.value);
-    setForm((prev) => ({
-      ...prev,
-      clientId: e.target.value,
-      // Fill location from the client's address, unless the user typed their own.
-      location:
-        !prev.location || prev.location === selectedClient?.address
-          ? (client?.address ?? "")
-          : prev.location,
-    }));
+    setForm((prev) => {
+      // Keep the chosen worker only if they're in the new client's team.
+      const worker = allUsers.find((u) => u._id === prev.workerId);
+      const keepWorker =
+        worker !== undefined &&
+        client?.teamId != null &&
+        worker.teamId === client.teamId;
+      return {
+        ...prev,
+        clientId: e.target.value,
+        workerId: keepWorker ? prev.workerId : "",
+        // Fill location from the client's address, unless the user typed their own.
+        location:
+          !prev.location || prev.location === selectedClient?.address
+            ? (client?.address ?? "")
+            : prev.location,
+      };
+    });
   };
 
   const breakMinutes = Number(form.breakMinutes) || 0;
@@ -310,6 +325,7 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
           name="workerId"
           value={form.workerId}
           onChange={handleOnChange}
+          disabled={!selectedClient}
         >
           <option value="">Unassigned</option>
           {workers.map((w) => (
@@ -319,6 +335,13 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
             </option>
           ))}
         </Form.Select>
+        <Form.Text className="mutedDate">
+          {!selectedClient
+            ? "Choose a client first."
+            : clientTeamId === null
+              ? "This client has no team yet, so the shift can only be unassigned. Set the client's team in Edit client."
+              : "Only workers in the client's team are listed."}
+        </Form.Text>
       </Form.Group>
 
       <Row>

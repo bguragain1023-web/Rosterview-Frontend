@@ -29,6 +29,7 @@ export interface IClient {
   email: string;
   notes?: string;
   isActive: boolean;
+  teamId?: string | null; // the client's area; null = not set (older clients)
   createdBy: string;
 }
 
@@ -198,6 +199,29 @@ export const addNewClient = async (
     },
   };
   return apiProcessor(obj);
+};
+
+// Only the fields that changed are sent.
+export interface UpdateClientPayload {
+  name?: string;
+  phone?: string;
+  address?: string;
+  email?: string;
+  notes?: string;
+  isActive?: boolean;
+  teamId?: string;
+}
+
+export const updateClient = async (
+  id: string,
+  data: UpdateClientPayload,
+): Promise<StatusMessageOnly> => {
+  return apiProcessor({
+    method: "patch",
+    url: `${baseURL}/clients/updateclient/${id}`,
+    data,
+    headers: authHeader(),
+  });
 };
 
 export const addNewTeam = async (

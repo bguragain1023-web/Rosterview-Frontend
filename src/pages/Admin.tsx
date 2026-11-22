@@ -23,6 +23,8 @@ import {
 import { addDays, startOfWeek, toDateInputValue } from "../utils/dates";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { EditClientForm } from "../components/clients/EditClientForm";
 
 type TableName = "staff" | "client" | "team";
 
@@ -44,6 +46,16 @@ export const Admin = () => {
   const navigate = useNavigate();
 
   const handleOnView = (id: string) => navigate(`/admin/staff/${id}`);
+
+  // The client whose Edit modal is open (null = closed).
+  const [editingClient, setEditingClient] = useState<IClient | null>(null);
+
+  // After an edit, fetch the clients again so the table shows the change.
+  const reloadClients = async () => {
+    const res = await getAllClients();
+    if (res.status === "success") setClientList(res.clients);
+    else toast.error(res.message);
+  };
 
   // "Needs attention" counts
   const [attention, setAttention] = useState<AttentionCounts | null>(null); // null = loading
@@ -142,7 +154,26 @@ export const Admin = () => {
     { header: "Email", render: (c) => c.email },
     { header: "Phone", render: (c) => c.phone },
     { header: "Address", render: (c) => c.address },
+    {
+      header: "Team",
+      render: (c) =>
+        teamList.find((t) => t._id === c.teamId)?.name ?? (
+          <span className="mutedDate">No team</span>
+        ),
+    },
     { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
+    {
+      header: "Action",
+      render: (c) => (
+        <Button
+          size="sm"
+          variant="outline-light"
+          onClick={() => setEditingClient(c)}
+        >
+          Edit
+        </Button>
+      ),
+    },
   ];
 
   const teamColumns: Column<ITeam>[] = [
@@ -403,6 +434,24 @@ export const Admin = () => {
             title={activeModal ? modals[activeModal].title : ""}
           >
             {activeModal && modals[activeModal].body}
+          </AppModal>
+
+          <AppModal
+            show={editingClient !== null}
+            onClose={() => setEditingClient(null)}
+            title="Edit client"
+          >
+            {editingClient && (
+              <EditClientForm
+                key={editingClient._id}
+                client={editingClient}
+                onCancel={() => setEditingClient(null)}
+                onSaved={() => {
+                  setEditingClient(null);
+                  reloadClients();
+                }}
+              />
+            )}
           </AppModal>
 
           <div className="mainScreenSection mt-4">
