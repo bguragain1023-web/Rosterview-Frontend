@@ -66,7 +66,11 @@ const columns: Column<IShift>[] = [
 // A team leader's area roster: their clients' shifts (incl. unassigned) and
 // their members' shifts. They can create, assign, edit and cancel shifts for
 // their own area's clients; the backend checks this too.
-export const TeamRosterPanel = () => {
+interface TeamRosterPanelProps {
+  onChanged?: () => void; // e.g. refresh the "Needs attention" counts
+}
+
+export const TeamRosterPanel = ({ onChanged }: TeamRosterPanelProps) => {
   const { user } = useUser();
   const teamId = user?.teamId;
 
@@ -74,7 +78,11 @@ export const TeamRosterPanel = () => {
   const [shifts, setShifts] = useState<IShift[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [reloadKey, setReloadKey] = useState(0);
-  const reload = () => setReloadKey((k) => k + 1);
+  // After any change: reload this roster and tell the parent.
+  const reload = () => {
+    setReloadKey((k) => k + 1);
+    onChanged?.();
+  };
 
   // My team's workers, in the shape ShiftForm / AssignWorkerModal want.
   const [members, setMembers] = useState<WorkerOption[]>([]);

@@ -1,7 +1,12 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useUser } from "../contex/UserContext";
-import { getLeaveRequests, getSwapRequests } from "../helper/axios";
+import {
+  getLeaveRequests,
+  getShifts,
+  getSwapRequests,
+} from "../helper/axios";
+import { addDays, startOfWeek, toDateInputValue } from "../utils/dates";
 import { MyTeamPanel } from "../components/worker/MyTeamPanel";
 import { TeamSwapsPanel } from "../components/teamLeader/TeamSwapsPanel";
 import { TeamLeavePanel } from "../components/teamLeader/TeamLeavePanel";
@@ -18,6 +23,7 @@ const sections: { key: Section; label: string }[] = [
 
 // null = couldn't load
 interface AttentionCounts {
+  unassigned: number | null;
   swaps: number | null;
   leave: number | null;
 }
@@ -28,6 +34,12 @@ const attentionCards: {
   tone: "orange" | "cyan";
   section: Section; // which section the card opens
 }[] = [
+  {
+    key: "unassigned",
+    label: "Unassigned shifts this week",
+    tone: "orange",
+    section: "roster",
+  },
   {
     key: "swaps",
     label: "Swap requests to review",
@@ -54,13 +66,24 @@ export const TeamLeader = () => {
 
   useEffect(() => {
     let ignore = false;
+    // Same Monday–Sunday week the Team roster opens on, so the numbers match.
+    const weekStart = startOfWeek(new Date());
 
     Promise.all([
+      getShifts({
+        from: toDateInputValue(weekStart),
+        to: toDateInputValue(addDays(weekStart, 6)),
+      }),
       getSwapRequests(["workerAccepted"]),
       getLeaveRequests(),
-    ]).then(([swapRes, leaveRes]) => {
+    ]).then(([shiftRes, swapRes, leaveRes]) => {
       if (ignore) return;
       setAttention({
+        unassigned:
+          shiftRes.status === "success"
+            ? shiftRes.allShifts.filter((s) => s.status === "unassigned")
+                .length
+            : null,
         swaps:
           swapRes.status === "success" ? swapRes.swapRequests.length : null,
         leave:
@@ -155,7 +178,9 @@ export const TeamLeader = () => {
                 Close
               </Button>
             </div>
-            {openSection === "roster" && <TeamRosterPanel />}
+            {openSection === "roster" && (
+              <TeamRosterPanel onChanged={refreshAttention} />
+            )}
             {openSection === "swaps" && (
               <TeamSwapsPanel onChanged={refreshAttention} />
             )}
