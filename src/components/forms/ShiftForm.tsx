@@ -84,44 +84,60 @@ const weeklyHoursMessage = (
   );
 };
 
+// The worker fields the form needs. Lets a team leader pass their team
+// members instead of the full user list (they can't read all users).
+export type WorkerOption = Pick<
+  IUser,
+  "_id" | "name" | "status" | "role" | "teamId"
+>;
+
 interface ShiftFormProps {
   shift?: IShift; // given = edit mode
   onSaved?: () => void; // e.g. reload the roster / close the edit modal
+  // Given = use these workers instead of loading all users.
+  workers?: WorkerOption[];
 }
 
-export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
+export const ShiftForm = ({
+  shift,
+  onSaved,
+  workers: givenWorkers,
+}: ShiftFormProps = {}) => {
   const isEdit = Boolean(shift);
   const { setActiveModal } = useUser();
   const { form, setForm, handleOnChange } = useForm<ShiftFormState>(
     shift ? toFormState(shift) : emptyState,
   );
   const [allClients, setAllClients] = useState<IClient[]>([]);
-  const [allUsers, setAllUsers] = useState<IUser[]>([]);
+  const [allUsers, setAllUsers] = useState<WorkerOption[]>([]);
   const [isSaving, setIsSaving] = useState(false);
+  // true/false only, so the effect doesn't re-run when the parent re-renders.
+  const loadsOwnWorkers = givenWorkers === undefined;
 
   useEffect(() => {
     let ignore = false;
 
-    Promise.all([getAllClients(), getAllUsers()]).then(
-      ([clientRes, userRes]) => {
+    getAllClients().then((clientRes) => {
+      if (ignore) return;
+      if (clientRes.status === "success") setAllClients(clientRes.clients);
+      else toast.error(clientRes.message);
+    });
+
+    if (loadsOwnWorkers) {
+      getAllUsers().then((userRes) => {
         if (ignore) return;
-        if (clientRes.status === "success") {
-          setAllClients(clientRes.clients);
-        } else {
-          toast.error(clientRes.message);
-        }
-        if (userRes.status === "success") {
-          setAllUsers(userRes.allUsers);
-        } else {
-          toast.error(userRes.message);
-        }
-      },
-    );
+        if (userRes.status === "success") setAllUsers(userRes.allUsers);
+        else toast.error(userRes.message);
+      });
+    }
 
     return () => {
       ignore = true;
     };
-  }, []);
+  }, [loadsOwnWorkers]);
+
+  // The list the form works with: given workers, or the loaded ones.
+  const userList = givenWorkers ?? allUsers;
 
   // Active clients, plus the shift's current one even if inactive.
   const clients = allClients.filter(
@@ -133,7 +149,7 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
 
   // Area rule: only active workers in the client's team. The shift's current
   // worker is kept so editing doesn't silently switch them.
-  const workers = allUsers.filter(
+  const workers = userList.filter(
     (u) =>
       u.role === "worker" &&
       (u._id === shift?.workerId ||
@@ -154,7 +170,7 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
     const client = clients.find((c) => c._id === e.target.value);
     setForm((prev) => {
       // Keep the chosen worker only if they're in the new client's team.
-      const worker = allUsers.find((u) => u._id === prev.workerId);
+      const worker = userList.find((u) => u._id === prev.workerId);
       const keepWorker =
         worker !== undefined &&
         client?.teamId != null &&
@@ -340,7 +356,9 @@ export const ShiftForm = ({ shift, onSaved }: ShiftFormProps = {}) => {
             ? "Choose a client first."
             : clientTeamId === null
               ? "This client has no team yet, so the shift can only be unassigned. Set the client's team in Edit client."
-              : "Only workers in the client's team are listed."}
+              : workers.length === 0
+                ? "No active workers in this client's team. The shift will be created unassigned."
+                : "Only workers in the client's team are listed."}
         </Form.Text>
       </Form.Group>
 

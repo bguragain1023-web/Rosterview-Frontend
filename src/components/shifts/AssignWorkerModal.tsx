@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Button, Form, Modal } from "react-bootstrap";
 import { toast } from "react-toastify";
-import { updateShift, type IShift, type IUser } from "../../helper/axios";
+import { updateShift, type IShift } from "../../helper/axios";
 import { formatShiftDate } from "../../utils/dates";
+import type { WorkerOption } from "../forms/ShiftForm";
 
 interface AssignWorkerModalProps {
   shift: IShift | null; // null = closed
-  workers: IUser[]; // workers allowed on this shift (active, client's team)
+  // Workers allowed on this shift (active, client's team). Only id and name
+  // are used, so team members work as well as full users.
+  workers: WorkerOption[];
   onClose: () => void;
   onAssigned: () => void;
 }
