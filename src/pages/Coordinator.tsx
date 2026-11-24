@@ -197,12 +197,23 @@ export const Coordinator = () => {
     },
   ];
 
+  // Shown in each table's top row, left of the search box.
+  const tableButtons = (
+    <>
+      <Button onClick={() => setShowTable("staff")}>Staff</Button>
+      <Button onClick={() => setShowTable("client")}>Clients</Button>
+      <Button onClick={() => setShowTable("team")}>Teams</Button>
+    </>
+  );
+
   const tables: Record<TableName, ReactNode> = {
     staff: (
       <DataTable
         columns={staffColumns}
         rows={staffList}
         getKey={(u) => u._id}
+        getSearchText={(u) => u.name}
+        toolbar={tableButtons}
       />
     ),
     client: (
@@ -210,10 +221,18 @@ export const Coordinator = () => {
         columns={clientColumns}
         rows={clientList}
         getKey={(c) => c.phone}
+        getSearchText={(c) => c.name}
+        toolbar={tableButtons}
       />
     ),
     team: (
-      <DataTable columns={teamColumns} rows={teamList} getKey={(t) => t._id} />
+      <DataTable
+        columns={teamColumns}
+        rows={teamList}
+        getKey={(t) => t._id}
+        getSearchText={(t) => t.name}
+        toolbar={tableButtons}
+      />
     ),
   };
 
@@ -311,13 +330,7 @@ export const Coordinator = () => {
           </AppModal>
 
           <div className="mainScreenSection mt-4">
-            <div className="d-flex gap-2 mb-3">
-              <Button onClick={() => setShowTable("staff")}>Staff</Button>
-              <Button onClick={() => setShowTable("client")}>Clients</Button>
-              <Button onClick={() => setShowTable("team")}>Teams</Button>
-            </div>
-
-            {/* key resets DataTable to page 1 when you switch tables */}
+            {/* key resets DataTable (page and search) when you switch tables */}
             <div key={showTable}>{tables[showTable]}</div>
           </div>
         </div>

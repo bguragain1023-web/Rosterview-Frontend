@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { ReactNode } from "react";
+import Form from "react-bootstrap/Form";
 import Table from "react-bootstrap/Table";
 import Pagination from "react-bootstrap/Pagination";
 
@@ -14,6 +15,10 @@ interface DataTableProps<T> {
   getKey: (row: T) => string; // a unique id for each row
   getRowClassName?: (row: T) => string | undefined; // e.g. dim cancelled rows
   pageSize?: number;
+  // Give this to show a search box; it returns the text to search in (e.g. name).
+  getSearchText?: (row: T) => string;
+  searchPlaceholder?: string;
+  toolbar?: ReactNode; // shown on the left of the top row, e.g. tab buttons
 }
 
 export const DataTable = <T,>({
@@ -22,16 +27,47 @@ export const DataTable = <T,>({
   getKey,
   getRowClassName,
   pageSize = 10,
+  getSearchText,
+  searchPlaceholder = "Search by name…",
+  toolbar,
 }: DataTableProps<T>) => {
   const [page, setPage] = useState(1);
+  const [search, setSearch] = useState("");
 
-  const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+  // Only rows whose text contains what's typed (ignoring upper/lower case).
+  const query = search.trim().toLowerCase();
+  const visibleRows =
+    getSearchText && query
+      ? rows.filter((row) => getSearchText(row).toLowerCase().includes(query))
+      : rows;
+
+  const totalPages = Math.max(1, Math.ceil(visibleRows.length / pageSize));
   const currentPage = Math.min(page, totalPages);
   const start = (currentPage - 1) * pageSize;
-  const pageRows = rows.slice(start, start + pageSize);
+  const pageRows = visibleRows.slice(start, start + pageSize);
 
   return (
     <>
+      {(toolbar || getSearchText) && (
+        <div className="d-flex flex-wrap align-items-center gap-2 mb-3">
+          {toolbar}
+          {getSearchText && (
+            <Form.Control
+              type="search"
+              size="sm"
+              className="ms-auto"
+              style={{ maxWidth: 240 }}
+              placeholder={searchPlaceholder}
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setPage(1); // new search → start from the first page
+              }}
+            />
+          )}
+        </div>
+      )}
+
       <Table hover responsive className="dashboard-table mb-3">
         <thead>
           <tr>
@@ -50,6 +86,13 @@ export const DataTable = <T,>({
               ))}
             </tr>
           ))}
+          {pageRows.length === 0 && query && (
+            <tr>
+              <td colSpan={columns.length + 1} className="text-center mutedDate">
+                No matches for "{search.trim()}"
+              </td>
+            </tr>
+          )}
         </tbody>
       </Table>
 

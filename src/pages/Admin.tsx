@@ -219,12 +219,23 @@ export const Admin = () => {
     year: "numeric",
   });
 
+  // Shown in each table's top row, left of the search box.
+  const tableButtons = (
+    <>
+      <Button onClick={() => setShowTable("staff")}>Staff</Button>
+      <Button onClick={() => setShowTable("client")}>Clients</Button>
+      <Button onClick={() => setShowTable("team")}>Teams</Button>
+    </>
+  );
+
   const tables: Record<TableName, ReactNode> = {
     staff: (
       <DataTable
         columns={staffColumns}
         rows={staffList}
         getKey={(u) => u.email}
+        getSearchText={(u) => u.name}
+        toolbar={tableButtons}
       />
     ),
     client: (
@@ -232,11 +243,19 @@ export const Admin = () => {
         columns={clientColumns}
         rows={clientList}
         getKey={(c) => c.phone}
+        getSearchText={(c) => c.name}
+        toolbar={tableButtons}
       />
     ),
 
     team: (
-      <DataTable columns={teamColumns} rows={teamList} getKey={(t) => t._id} />
+      <DataTable
+        columns={teamColumns}
+        rows={teamList}
+        getKey={(t) => t._id}
+        getSearchText={(t) => t.name}
+        toolbar={tableButtons}
+      />
     ),
   };
 
@@ -272,38 +291,16 @@ export const Admin = () => {
   }, []);
 
   return (
-    <>
-      <div className="layoutWrapper p-3">
-        {/* <div className="sideBar d-flex flex-column gap-3">
-          <div className="sideBarMenu">
-            {" "}
-            <MdOutlineDashboard /> Dashboard
-          </div>
-          <div className="sideBarMenu">
-            {" "}
-            <SlPeople /> Staff Management
-          </div>
-          <div className="sideBarMenu">
-            {" "}
-            <RiTeamLine /> Team Management
-          </div>
-          <div className="sideBarMenu">
-            {" "}
-            <SlCalender /> All Workers Shifts
-          </div>
-        </div> */}
-
-        <Container>
-          <Row>
-            <Col className="">
-              {" "}
-              <div className="title">Welcome {user?.name}</div>
-              <span className="mutedDate">{user?.role.toUpperCase()}</span>{" "}
-              <br />
-              <span className="mutedDate">{today}</span>
-            </Col>
-          </Row>
-        </Container>
+    <div className="layoutWrapper p-3">
+      <Container>
+        <Row>
+          <Col>
+            <div className="title">Welcome {user?.name}</div>
+            <span className="mutedDate">{user?.role.toUpperCase()}</span>
+            <br />
+            <span className="mutedDate">{today}</span>
+          </Col>
+        </Row>
 
         <div className="mainScreen">
           <div className="mainScreenSection d-flex gap-2 p-1 mt-3 flex-wrap">
@@ -455,21 +452,11 @@ export const Admin = () => {
           </AppModal>
 
           <div className="mainScreenSection mt-4">
-            <div className="d-flex gap-2 mb-3">
-              <Button onClick={() => setShowTable("staff")}>Staff</Button>
-              <Button onClick={() => setShowTable("client")}>Clients</Button>
-              <Button onClick={() => setShowTable("team")}>Teams</Button>
-            </div>
-
-            {/* key resets DataTable to page 1 when you switch tables */}
+            {/* key resets DataTable (page and search) when you switch tables */}
             <div key={showTable}>{tables[showTable]}</div>
           </div>
-
-          <div className="mainScreenSection">
-            <div className="subtitle">Staff Management</div>
-          </div>
         </div>
-      </div>
-    </>
+      </Container>
+    </div>
   );
 };
