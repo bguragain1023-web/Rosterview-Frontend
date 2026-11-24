@@ -109,7 +109,6 @@ const apiProcessor = async <T>({
   data,
   headers,
 }: ProcessorPayload): Promise<T | ApiError> => {
-  console.log("apiProcessor called with:", { method, url, data });
   try {
     const response = await axios({
       method,
@@ -119,7 +118,8 @@ const apiProcessor = async <T>({
     });
     return response.data as T;
   } catch (error) {
-    console.log("apiProcessor caught error:", error);
+    // Log only the message: the full error holds the request body (e.g. a password).
+    console.error("API error:", isAxiosError(error) ? error.message : error);
     if (isAxiosError(error)) {
       return {
         status: "error",

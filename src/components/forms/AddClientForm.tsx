@@ -87,7 +87,7 @@ export const AddClientForm = () => {
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("client form ", form);
+
     const pendingState = addNewClient(form);
     toast.promise(pendingState, {
       pending: "Adding New client.. Please wait !!",

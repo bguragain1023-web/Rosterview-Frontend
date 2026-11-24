@@ -11,8 +11,6 @@ export const PrivateRoutes = ({ allowedRoles }: PrivateRoutesProps) => {
   if (isAuthLoading) {
     return null;
   }
-  console.log("USER:", user);
-  console.log("USER ROLE:", user?.role);
   if (!user) {
     return <Navigate to="/" replace />;
   }

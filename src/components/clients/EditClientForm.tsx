@@ -173,9 +173,6 @@ export const EditClientForm = ({
           value={form.teamId}
           onChange={handleOnChange}
         >
-          {/* Older clients have no team yet. The backend can't remove a team,
-              so "No team yet" is only offered while there isn't one. */}
-          {!client.teamId && <option value="">No team yet</option>}
           {teams.map((t) => (
             <option key={t._id} value={t._id}>
               {t.name}

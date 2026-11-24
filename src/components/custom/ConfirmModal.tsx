@@ -11,7 +11,6 @@ interface ConfirmModalProps {
   onCancel: () => void;
 }
 
-// "Are you sure?" dialog. Buttons are disabled while onConfirm runs.
 export const ConfirmModal = ({
   show,
   title,

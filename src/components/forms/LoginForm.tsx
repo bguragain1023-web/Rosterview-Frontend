@@ -43,7 +43,6 @@ export const LoginForm = () => {
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
     const pendingState = loginUser(form);
-    console.log("LOGIN RESPONSE:", pendingState);
     toast.promise(pendingState, {
       pending: "Please wait",
     });

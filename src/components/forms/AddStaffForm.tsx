@@ -60,7 +60,6 @@ export const AddStaffForm = () => {
 
   const handleOnSubmit = async (e: SubmitEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Add form submitted", form);
 
     const pendingState = addNewUser(form);
     toast.promise(pendingState, {

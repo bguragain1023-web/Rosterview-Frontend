@@ -69,8 +69,8 @@ export const AssignWorkerModal = ({
         )}
         {workers.length === 0 ? (
           <p className="mutedDate mb-0">
-            No workers can take this shift. The client may have no team yet, or
-            their team has no active workers.
+            No workers can take this shift: the client's team has no active
+            workers.
           </p>
         ) : (
           <Form.Select

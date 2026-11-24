@@ -40,7 +40,6 @@ export const Admin = () => {
   const [staffList, setStaffList] = useState<IUser[]>([]);
   const [clientList, setClientList] = useState<IClient[]>([]);
   const [teamList, setTeamList] = useState<ITeam[]>([]);
-  const [loadError, setLoadError] = useState("");
   const { setActiveModal, activeModal, user } = useUser();
   const closeModal = () => setActiveModal(null);
   const navigate = useNavigate();
@@ -259,35 +258,27 @@ export const Admin = () => {
     ),
   };
 
+  // Load staff, clients and teams together.
   useEffect(() => {
-    const loadUser = async () => {
-      const res = await getAllUsers();
-      if (res.status === "success") {
-        setStaffList(res.allUsers);
-        setLoadError("");
-      } else {
-        setLoadError(res.message);
-      }
+    let ignore = false;
 
-      const clientRes = await getAllClients();
+    Promise.all([getAllUsers(), getAllClients(), getAllTeams()]).then(
+      ([userRes, clientRes, teamRes]) => {
+        if (ignore) return;
+        if (userRes.status === "success") setStaffList(userRes.allUsers);
+        else toast.error(userRes.message);
 
-      if (clientRes.status === "success") {
-        setClientList(clientRes.clients);
-        setLoadError("");
-      } else {
-        setLoadError(res.message);
-      }
+        if (clientRes.status === "success") setClientList(clientRes.clients);
+        else toast.error(clientRes.message);
 
-      const teamRes = await getAllTeams();
-      if (teamRes.status === "success") {
-        setTeamList(teamRes.teams);
-        setLoadError("");
-      } else {
-        setLoadError(res.message);
-      }
+        if (teamRes.status === "success") setTeamList(teamRes.teams);
+        else toast.error(teamRes.message);
+      },
+    );
+
+    return () => {
+      ignore = true;
     };
-
-    loadUser();
   }, []);
 
   return (

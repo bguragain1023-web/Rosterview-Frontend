@@ -354,11 +354,9 @@ export const ShiftForm = ({
         <Form.Text className="mutedDate">
           {!selectedClient
             ? "Choose a client first."
-            : clientTeamId === null
-              ? "This client has no team yet, so the shift can only be unassigned. Set the client's team in Edit client."
-              : workers.length === 0
-                ? "No active workers in this client's team. The shift will be created unassigned."
-                : "Only workers in the client's team are listed."}
+            : workers.length === 0
+              ? "No active workers in this client's team. The shift will be created unassigned."
+              : "Only workers in the client's team are listed."}
         </Form.Text>
       </Form.Group>
 
