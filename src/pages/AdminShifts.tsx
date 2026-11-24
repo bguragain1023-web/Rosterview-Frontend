@@ -560,7 +560,7 @@ export const AdminShifts = () => {
 
   return (
     <div className="layoutWrapper p-3">
-      <Container>
+      <Container className="pageContainer">
         <div className="d-flex justify-content-between align-items-center mb-3">
           <Link to={dashboardPath} className="backLink">
             ← Back to dashboard

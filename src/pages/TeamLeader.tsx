@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { Button, Col, Container, Row } from "react-bootstrap";
 import { useUser } from "../contex/UserContext";
-import {
-  getLeaveRequests,
-  getShifts,
-  getSwapRequests,
-} from "../helper/axios";
+import { getLeaveRequests, getShifts, getSwapRequests } from "../helper/axios";
 import { addDays, startOfWeek, toDateInputValue } from "../utils/dates";
 import { MyTeamPanel } from "../components/worker/MyTeamPanel";
 import { TeamSwapsPanel } from "../components/teamLeader/TeamSwapsPanel";
@@ -81,8 +77,7 @@ export const TeamLeader = () => {
       setAttention({
         unassigned:
           shiftRes.status === "success"
-            ? shiftRes.allShifts.filter((s) => s.status === "unassigned")
-                .length
+            ? shiftRes.allShifts.filter((s) => s.status === "unassigned").length
             : null,
         swaps:
           swapRes.status === "success" ? swapRes.swapRequests.length : null,
@@ -110,10 +105,10 @@ export const TeamLeader = () => {
 
   return (
     <div className="layoutWrapper p-3">
-      <Container>
+      <Container className="pageContainer">
         <Row>
           <Col>
-            <div className="title">Welcome {user?.name}</div>
+            <div className="title">{user?.name}</div>
             <span className="mutedDate">TEAM LEADER</span>
             <br />
             <span className="mutedDate">{today}</span>

@@ -37,10 +37,10 @@ export const Worker = () => {
 
   return (
     <div className="layoutWrapper p-3">
-      <Container>
+      <Container className="pageContainer">
         <Row>
           <Col>
-            <div className="title">Welcome {user?.name}</div>
+            <div className="title">{user?.name}</div>
             <span className="mutedDate">{user?.role?.toUpperCase()}</span>
             <br />
             <span className="mutedDate">{today}</span>

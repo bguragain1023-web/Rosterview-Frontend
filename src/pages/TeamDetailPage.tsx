@@ -113,7 +113,7 @@ export const TeamDetailPage = () => {
 
   return (
     <div className="layoutWrapper p-3">
-      <Container>
+      <Container className="pageContainer">
         <Link to={isAdmin ? "/admin" : "/coordinator"} className="backLink">
           ← Back to dashboard
         </Link>
