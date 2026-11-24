@@ -9,7 +9,13 @@ export const Footer = () => {
         <Col className="footer">
           {" "}
           &copy; All copyright reserved ||{" "}
-          <a href="https//brazeshguragain.com">Brazesh</a>{" "}
+          <a
+            href="https://www.brazeshguragain.com"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Brazesh
+          </a>{" "}
         </Col>
       </Row>
     </Container>

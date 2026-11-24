@@ -87,6 +87,15 @@ body {
   padding: 10px;
 }
 
+.footer a {
+  color: inherit; /* same white as the rest of the footer */
+  text-decoration: none;
+}
+
+.footer a:hover {
+  text-decoration: underline; /* still shows it's a link */
+}
+
 /* navBar */
 .customNavbar {
   background: var(--color-secondary);
@@ -182,6 +191,8 @@ body {
 .mainScreenSection .table {
   --bs-table-bg: var(--box-bg);
   --bs-table-color: var(--color-text);
+  --bs-table-hover-bg: var(--cyan-hover); /* row background on hover */
+  --bs-table-hover-color: var(--color-text); /* keep text light on hover */
   border-color: rgba(109, 108, 108, 0.146);
 }
 
