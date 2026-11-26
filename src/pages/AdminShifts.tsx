@@ -462,6 +462,7 @@ export const AdminShifts = () => {
               getRowClassName={(s) =>
                 s.status === "cancelled" ? "cancelledRow" : undefined
               }
+              stackOnMobile
             />
           </div>
           <p className="mutedDate mt-2">

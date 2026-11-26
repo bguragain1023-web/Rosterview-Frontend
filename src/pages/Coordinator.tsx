@@ -136,16 +136,18 @@ export const Coordinator = () => {
   });
 
   const staffColumns: Column<IUser>[] = [
+    // On phones only Name, Role and View show; View opens the full details.
     { header: "Name", render: (u) => u.name },
-    { header: "Email", render: (u) => u.email },
-    { header: "Phone", render: (u) => u.phone },
+    { header: "Email", render: (u) => u.email, hideOnMobile: true },
+    { header: "Phone", render: (u) => u.phone, hideOnMobile: true },
     { header: "Role", render: (u) => u.role },
     {
       header: "Team",
       render: (u) =>
         teamList.find((t) => t._id === u.teamId)?.name ?? "Unassigned",
+      hideOnMobile: true,
     },
-    { header: "Status", render: (u) => u.status },
+    { header: "Status", render: (u) => u.status, hideOnMobile: true },
     {
       header: "Action",
       render: (u) => (
@@ -161,10 +163,11 @@ export const Coordinator = () => {
   ];
 
   const clientColumns: Column<IClient>[] = [
+    // On phones only Name and Team show.
     { header: "Name", render: (c) => c.name },
-    { header: "Email", render: (c) => c.email },
-    { header: "Phone", render: (c) => c.phone },
-    { header: "Address", render: (c) => c.address },
+    { header: "Email", render: (c) => c.email, hideOnMobile: true },
+    { header: "Phone", render: (c) => c.phone, hideOnMobile: true },
+    { header: "Address", render: (c) => c.address, hideOnMobile: true },
     {
       header: "Team",
       render: (c) =>
@@ -172,7 +175,11 @@ export const Coordinator = () => {
           <span className="mutedDate">No team</span>
         ),
     },
-    { header: "Status", render: (c) => (c.isActive ? "active" : "inactive") },
+    {
+      header: "Status",
+      render: (c) => (c.isActive ? "active" : "inactive"),
+      hideOnMobile: true,
+    },
   ];
 
   const teamColumns: Column<ITeam>[] = [
@@ -182,7 +189,7 @@ export const Coordinator = () => {
       render: (t) =>
         staffList.find((u) => u._id === t.teamLeaderId)?.name ?? "Unassigned",
     },
-    { header: "Description", render: (t) => t.description },
+    { header: "Description", render: (t) => t.description, hideOnMobile: true },
     {
       header: "Action",
       render: (t) => (
@@ -275,7 +282,7 @@ export const Coordinator = () => {
 
           <div className="mainScreenSection mt-5">
             <div className="subtitle">Quick Actions</div>
-            <div className="quickActions d-flex gap-3 mt-3">
+            <div className="quickActions d-flex flex-wrap gap-3 mt-3">
               <div
                 className="quickActionMenu text-success"
                 onClick={() => setActiveModal("createShift")}

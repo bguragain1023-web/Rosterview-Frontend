@@ -7,7 +7,11 @@ import Pagination from "react-bootstrap/Pagination";
 export interface Column<T> {
   header: string;
   render: (row: T) => ReactNode; // how to show this column for one row
+  hideOnMobile?: boolean; // hide this column on phones, to avoid scrolling sideways
 }
+
+// Bootstrap classes: hidden below 768px wide (phones), shown from there up.
+const HIDE_ON_MOBILE = "d-none d-md-table-cell";
 
 interface DataTableProps<T> {
   columns: Column<T>[];
@@ -19,6 +23,9 @@ interface DataTableProps<T> {
   getSearchText?: (row: T) => string;
   searchPlaceholder?: string;
   toolbar?: ReactNode; // shown on the left of the top row, e.g. tab buttons
+  // On phones, show each row as a card (one "Label  value" line per column)
+  // instead of a wide table. For tables where every column matters, e.g. the roster.
+  stackOnMobile?: boolean;
 }
 
 export const DataTable = <T,>({
@@ -30,6 +37,7 @@ export const DataTable = <T,>({
   getSearchText,
   searchPlaceholder = "Search by name…",
   toolbar,
+  stackOnMobile = false,
 }: DataTableProps<T>) => {
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
@@ -68,21 +76,37 @@ export const DataTable = <T,>({
         </div>
       )}
 
-      <Table hover responsive className="dashboard-table mb-3">
+      <Table
+        hover
+        responsive
+        className={`dashboard-table mb-3${stackOnMobile ? " stackOnMobile" : ""}`}
+      >
         <thead>
           <tr>
-            <th>#</th>
+            <th className={HIDE_ON_MOBILE}>#</th>
             {columns.map((col) => (
-              <th key={col.header}>{col.header}</th>
+              <th
+                key={col.header}
+                className={col.hideOnMobile ? HIDE_ON_MOBILE : undefined}
+              >
+                {col.header}
+              </th>
             ))}
           </tr>
         </thead>
         <tbody>
           {pageRows.map((row, i) => (
             <tr key={getKey(row)} className={getRowClassName?.(row)}>
-              <td>{start + i + 1}</td>
+              <td className={HIDE_ON_MOBILE}>{start + i + 1}</td>
               {columns.map((col) => (
-                <td key={col.header}>{col.render(row)}</td>
+                // data-label: the header, shown beside the value in phone cards
+                <td
+                  key={col.header}
+                  data-label={col.header}
+                  className={col.hideOnMobile ? HIDE_ON_MOBILE : undefined}
+                >
+                  {col.render(row)}
+                </td>
               ))}
             </tr>
           ))}

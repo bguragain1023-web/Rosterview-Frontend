@@ -196,6 +196,17 @@ body {
   cursor: pointer;
 }
 
+/* Quick action buttons share the row at the same width. On narrow screens
+   they wrap, and a button alone on its row stretches to full width. */
+.quickActions > .quickActionMenu {
+  flex: 1 1 160px; /* start ~160px wide, then grow to fill the row */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  text-align: center;
+}
+
 .mainScreenSection .table {
   --bs-table-bg: var(--box-bg);
   --bs-table-color: var(--color-text);
@@ -751,4 +762,45 @@ button.quickActionMenu {
   background: var(--box-bg);
   border: 1px solid var(--color-border);
   border-radius: 10px;
+}
+
+/* Phones: tables marked stackOnMobile (e.g. the roster) show each row as a
+   card, one "Label  value" line per column, instead of scrolling sideways. */
+@media (max-width: 767.98px) {
+  .stackOnMobile,
+  .stackOnMobile tbody {
+    display: block;
+  }
+
+  .stackOnMobile thead {
+    display: none; /* the label is on each line instead */
+  }
+
+  .stackOnMobile tr {
+    display: block;
+    margin-bottom: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+
+  .stackOnMobile td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    text-align: right;
+  }
+
+  /* the column name, on the left of each line */
+  .stackOnMobile td::before {
+    content: attr(data-label);
+    color: var(--color-text-muted);
+    text-align: left;
+  }
+
+  .stackOnMobile td:last-child {
+    border-bottom: none;
+  }
 }

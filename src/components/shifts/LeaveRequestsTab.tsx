@@ -311,7 +311,12 @@ export const LeaveRequestsTab = ({
         <p className="mutedDate text-center my-5">No leave requests here.</p>
       ) : (
         <div key={view}>
-          <DataTable columns={columns} rows={rows} getKey={(l) => l._id} />
+          <DataTable
+            columns={columns}
+            rows={rows}
+            getKey={(l) => l._id}
+            stackOnMobile
+          />
         </div>
       )}
 

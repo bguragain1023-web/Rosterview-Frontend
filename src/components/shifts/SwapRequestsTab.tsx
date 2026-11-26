@@ -201,7 +201,12 @@ export const SwapRequestsTab = ({
         <p className="mutedDate text-center my-5">No swap requests here.</p>
       ) : (
         <div key={view}>
-          <DataTable columns={columns} rows={rows} getKey={(s) => s._id} />
+          <DataTable
+            columns={columns}
+            rows={rows}
+            getKey={(s) => s._id}
+            stackOnMobile
+          />
         </div>
       )}
 

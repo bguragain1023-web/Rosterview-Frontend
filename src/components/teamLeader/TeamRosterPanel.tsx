@@ -260,6 +260,7 @@ export const TeamRosterPanel = ({ onChanged }: TeamRosterPanelProps) => {
               getRowClassName={(s) =>
                 s.status === "cancelled" ? "cancelledRow" : undefined
               }
+              stackOnMobile
             />
           </div>
           <p className="mutedDate mt-2">
